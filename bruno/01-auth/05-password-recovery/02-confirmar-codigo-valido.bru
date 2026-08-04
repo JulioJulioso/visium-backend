@@ -1,0 +1,29 @@
+meta {
+  name: 02 Confirmar codigo valido
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/password-recovery/confirm
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "cfritzsepulveda8@gmail.com",
+    "code": "REEMPLAZAR_CON_CODIGO_DEL_CORREO",
+    "newPassword": "NuevaClaveSegura1"
+  }
+}
+
+docs {
+  Reemplace solo el campo code con el codigo recibido por correo.
+  Esperado: 200 con el mismo mensaje generico. Luego pruebe login con NuevaClaveSegura1.
+  La respuesta no debe incluir token ni roles.
+}

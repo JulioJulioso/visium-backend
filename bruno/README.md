@@ -6,7 +6,7 @@ Abrir esta carpeta en [Bruno](https://www.usebruno.com/).
 
 | Email | Rol | Alcance |
 |---|---|---|
-| `super@visium.cl` | SUPER_ADMIN | Todas las empresas |
+| `cfritzsepulveda8@gmail.com` | SUPER_ADMIN | Todas las empresas |
 | `jefe@visium.cl` | JEFE | Demo + Norte |
 | `jsucursal@visium.cl` | JEFE_SUCURSAL | Solo Casa Matriz (Demo) |
 
