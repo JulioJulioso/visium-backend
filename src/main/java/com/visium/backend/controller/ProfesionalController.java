@@ -3,6 +3,8 @@ package com.visium.backend.controller;
 import com.visium.backend.dto.profesional.ProfesionalRequest;
 import com.visium.backend.dto.profesional.ProfesionalResponse;
 import com.visium.backend.service.ProfesionalService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -29,17 +31,32 @@ public class ProfesionalController {
 	private final ProfesionalService profesionalService;
 
 	@GetMapping
+	@Operation(
+			summary = "Listar profesionales",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve todos los profesionales registrados.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<List<ProfesionalResponse>> listar() {
 		return ResponseEntity.ok(profesionalService.listar());
 	}
 
 	@GetMapping("/{id}")
+	@Operation(
+			summary = "Obtener profesional por id",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve el detalle de un profesional.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<ProfesionalResponse> obtener(@PathVariable UUID id) {
 		return ResponseEntity.ok(profesionalService.obtenerPorId(id));
 	}
 
 	@PostMapping
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@Operation(
+			summary = "Registrar profesional",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+					+ "Registra un nuevo profesional en el sistema.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<ProfesionalResponse> registrar(
 			@Valid @RequestBody ProfesionalRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED)

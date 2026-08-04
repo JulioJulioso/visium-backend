@@ -48,3 +48,9 @@ visium:
     secret: "${JWT_SECRET}"
     # Duracion del token: 24 horas (en milisegundos)
     expiration-ms: 86400000
+
+# Documentacion API con Swagger (springdoc)
+springdoc:
+  api-docs:
+    path: /api-docs
+  show-actuator: false
