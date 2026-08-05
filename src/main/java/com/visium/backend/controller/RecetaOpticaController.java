@@ -74,24 +74,16 @@ public class RecetaOpticaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReceta);
     }
 
-    @GetMapping("/test-email")
+    // --------------------------------------------------------
+    // ENDPOINT UNIFICADO: PRUEBA DE PDF + ENVÍO POR CORREO
+    // --------------------------------------------------------
+    @GetMapping("/test-envio-pdf")
     @Operation(
-            summary = "Probar envio de correo (endpoint de prueba)",
+            summary = "Probar generación de PDF y envío por correo",
             description = "PUBLICO (no requiere token JWT). "
-                    + "Envia un correo de prueba a una direccion fija. SOLO para desarrollo.")
-    public ResponseEntity<String> probarEmail() {
-        String tuCorreo = "cfritzsepulveda8@gmail.com";
-
-        emailService.enviarCorreoPrueba(tuCorreo);
-
-        return ResponseEntity.ok("Intento de envío de correo finalizado. Revisa la consola de Java y tu bandeja de entrada.");
-    }
-    // --------------------------------------------------------
-    // ENDPOINT TEMPORAL PARA PROBAR EL DISEÑO DEL PDF
-    // --------------------------------------------------------
-    @GetMapping("/test-pdf")
-    public ResponseEntity<byte[]> probarPdfEnMemoria() {
-        // 1. Crear Empresa y Sucursal ficticias
+                    + "Genera una receta falsa en memoria y la envía como PDF adjunto. SOLO para desarrollo.")
+    public ResponseEntity<String> probarEnvioPdfPorCorreo() {
+        // 1. Crear Empresa ficticia
         com.visium.backend.entity.Empresa empresa = new com.visium.backend.entity.Empresa();
         empresa.setRazonSocial("Óptica Visium Test");
 
@@ -123,13 +115,13 @@ public class RecetaOpticaController {
         receta.setDistanciaPupilar(new java.math.BigDecimal("62.5"));
         receta.setObservaciones("Paciente requiere uso de lentes para lectura y pantallas.");
 
-        // 5. Agregar detalles de los ojos (OD y OI)
+        // 5. Agregar detalles de los ojos
         com.visium.backend.entity.RecetaOpticaDetalle detalleOD = new com.visium.backend.entity.RecetaOpticaDetalle();
         detalleOD.setOjo(com.visium.backend.enums.Ojo.OD);
         detalleOD.setEsfera(new java.math.BigDecimal("-1.25"));
         detalleOD.setCilindro(new java.math.BigDecimal("-0.50"));
         detalleOD.setEje((short) 90);
-        receta.agregarDetalle(detalleOD); // Helper que ya tienes en tu entidad
+        receta.agregarDetalle(detalleOD);
 
         com.visium.backend.entity.RecetaOpticaDetalle detalleOI = new com.visium.backend.entity.RecetaOpticaDetalle();
         detalleOI.setOjo(com.visium.backend.enums.Ojo.OI);
@@ -138,13 +130,15 @@ public class RecetaOpticaController {
         detalleOI.setEje((short) 85);
         receta.agregarDetalle(detalleOI);
 
-        // 6. Generar el PDF
+        // 6. Generar los bytes del PDF
         byte[] pdfBytes = pdfService.generarPdf(receta);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "Receta_Prueba.pdf");
+        // 7. Enviar el PDF por correo a tu bandeja (AQUÍ PON TU CORREO AUTORIZADO EN BREVO)
+        String tuCorreoDestino = "cfrtzsepulveda8@gmail.com";
 
-        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        // ¡OJO! Esto requiere que hayas creado el método enviarCorreoPruebaConPdf en EmailService.java
+        emailService.enviarCorreoPruebaConPdf(tuCorreoDestino, pdfBytes, empresa.getRazonSocial());
+
+        return ResponseEntity.ok("Prueba unificada finalizada. Revisa la bandeja de entrada de " + tuCorreoDestino);
     }
 }

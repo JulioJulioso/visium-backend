@@ -7,10 +7,10 @@ spring:
 
   # Email con Resend
   mail:
-    host: smtp.resend.com
+    host: smtp-relay.brevo.com
     port: 587
-    username: "resend" # OJO: El usuario siempre es literalmente la palabra "resend"
-    password: "${RESEND_API_KEY}"
+    username: "b4818f001@smtp-brevo.com" # OJO: El usuario siempre es literalmente la palabra "resend"
+    password: "${BREVO_SMTP_KEY}"
     properties:
       mail:
         smtp:

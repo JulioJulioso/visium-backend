@@ -1,6 +1,5 @@
 package com.visium.backend.service;
 
-// 1. IMPORTAMOS TODAS LAS CLASES PARA QUE TU EDITOR NO MARQUE ERROR
 import com.visium.backend.entity.Cita;
 import com.visium.backend.entity.Consulta;
 import com.visium.backend.entity.Empresa;
@@ -11,6 +10,8 @@ import com.visium.backend.repository.RecetaOpticaRepository;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -20,18 +21,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j // Activa el sistema de logs profesional
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
     private final RecetaPdfService pdfService;
-    // Agregamos el repositorio para buscar la receta fresca
     private final RecetaOpticaRepository recetaOpticaRepository;
 
+    // Inyecta dinámicamente tu correo desde application.yaml (o usa estayjose3@gmail.com por defecto)
+    @Value("${spring.mail.username:estayjose3@gmail.com}")
+    private String correoRemitente;
+
     @Async
-    @Transactional // Mantiene viva la conexión a PostgreSQL en este hilo
-    public void enviarRecetaAutomatica(UUID recetaId) { // Ahora recibe el ID
+    @Transactional
+    public void enviarRecetaAutomatica(UUID recetaId) {
 
         // 1. Buscamos la receta en la base de datos
         RecetaOptica receta = recetaOpticaRepository.findById(recetaId).orElse(null);
@@ -60,7 +65,8 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
             helper.setTo(paciente.getEmail());
-            helper.setFrom("onboarding@resend.dev", empresa.getRazonSocial());
+            // Usamos la variable inyectada en lugar de tener el correo hardcodeado
+            helper.setFrom(correoRemitente, empresa.getRazonSocial());
 
             if (empresa.getEmail() != null && !empresa.getEmail().isBlank()) {
                 helper.setReplyTo(empresa.getEmail());
@@ -79,25 +85,57 @@ public class EmailService {
             helper.addAttachment(nombreArchivo, new ByteArrayResource(pdfBytes));
 
             mailSender.send(mensaje);
+            log.info("Receta enviada automáticamente con éxito a {}", paciente.getEmail());
 
         } catch (Exception e) {
-            System.err.println("Error enviando correo de receta: " + e.getMessage());
+            log.error("Error enviando correo de receta: {}", e.getMessage(), e);
         }
     }
+
     public void enviarCorreoPrueba(String tuCorreo) {
         try {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
-            helper.setTo(tuCorreo); // DEBE ser tu correo registrado en Resend
-            helper.setFrom("onboarding@resend.dev", "Óptica VISIUM");
+            helper.setTo(tuCorreo); // Correo de destino
+            helper.setFrom(correoRemitente, "Óptica VISIUM");
             helper.setSubject("Prueba de Integración VISIUM");
-            helper.setText("¡Felicidades! Tu backend en Spring Boot está enviando correos correctamente a través de Resend.");
+            helper.setText("¡Felicidades! Tu backend en Spring Boot está enviando correos correctamente a través de Brevo.");
 
             mailSender.send(mensaje);
-            System.out.println("¡Correo de prueba enviado con éxito!");
+            log.info("¡Correo de prueba enviado con éxito a {}!", tuCorreo);
+
         } catch (Exception e) {
-            System.err.println("Error enviando correo de prueba: " + e.getMessage());
+            log.error("Error enviando correo de prueba: {}", e.getMessage(), e);
+        }
+    }
+
+    public void enviarCorreoPruebaConPdf(String tuCorreoDestino, byte[] pdfBytes, String razonSocial) {
+        try {
+            // 1. Preparamos el correo
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+
+            // 2. Configuramos destinatario y remitente
+            helper.setTo(tuCorreoDestino);
+            helper.setFrom(correoRemitente, razonSocial);
+            helper.setSubject("Prueba de Receta PDF - " + razonSocial);
+
+            // 3. Escribimos el cuerpo del correo
+            String cuerpo = "¡Hola!\n\nEste es un correo de prueba unificado. "
+                    + "Si estás leyendo esto y puedes abrir el PDF adjunto, significa que tu generador "
+                    + "de recetas y la conexión con Brevo están funcionando a la perfección.\n\nSaludos!";
+            helper.setText(cuerpo);
+
+            // 4. Adjuntamos el PDF (convertimos los bytes crudos a un archivo adjunto)
+            helper.addAttachment("Receta_Prueba.pdf", new org.springframework.core.io.ByteArrayResource(pdfBytes));
+
+            // 5. ¡Enviamos!
+            mailSender.send(mensaje);
+            log.info("¡Correo de prueba con PDF adjunto enviado con éxito a {}!", tuCorreoDestino);
+
+        } catch (Exception e) {
+            log.error("Error enviando correo de prueba con PDF: {}", e.getMessage(), e);
         }
     }
 
