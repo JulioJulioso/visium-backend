@@ -125,3 +125,9 @@ TOTAL: 10  PASS: 10  FAIL: 0
 | JEFE_SUCURSAL login (1 sucursal) | PASS |
 | JEFE_SUCURSAL solo Casa Matriz | PASS |
 | JEFE_SUCURSAL pide Norte → 403 | PASS |
+
+
+## Documentacion de la API se encuentra en swagger
+```url
+http://localhost:8080/swagger-ui/index.html
+```

@@ -63,6 +63,13 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/auth/login")
                     .permitAll()
+                    .requestMatchers(
+                            "/api-docs",
+                            "/api-docs/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/webjars/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
                         .requestMatchers("/profesionales/sucursal/**")

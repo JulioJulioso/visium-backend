@@ -38,9 +38,6 @@ public class Profesional {
 	@JoinColumn(name = "usuario_id", nullable = false, unique = true)
 	private Usuario usuario;
 
-	@Column(name = "numero_registro", nullable = false, unique = true, length = 50)
-	private String numeroRegistro;
-
 	@Column(nullable = false, length = 120)
 	private String especialidad;
 

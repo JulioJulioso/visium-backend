@@ -12,4 +12,7 @@ public interface UsuarioSucursalRepository extends JpaRepository<UsuarioSucursal
 
 	List<UsuarioSucursal> findByUsuarioEmpresaId(UUID usuarioEmpresaId);
 
+
+	void deleteByUsuarioEmpresaId(UUID usuarioEmpresaId);
+
 }

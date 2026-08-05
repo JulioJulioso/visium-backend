@@ -1,8 +1,7 @@
-package com.visium.backend.dto.profesional;
+package com.visium.backend.dto.recepcionista;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -12,11 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Datos para registrar un profesional (crea usuario + rol + perfil + sucursales).
+ * Datos para crear o editar un recepcionista.
+ * El rol siempre es RECEPCIONISTA (no se recibe del cliente).
  */
 @Getter
 @Setter
-public class ProfesionalRequest {
+public class RecepcionistaRequest {
 
 	@NotNull(message = "La empresa es obligatoria")
 	private UUID empresaId;
@@ -34,7 +34,6 @@ public class ProfesionalRequest {
 	@Size(max = 254)
 	private String email;
 
-	@NotBlank(message = "La contrasena es obligatoria")
 	@Size(min = 6, message = "La contrasena debe tener al menos 6 caracteres")
 	private String password;
 
@@ -44,10 +43,6 @@ public class ProfesionalRequest {
 	@Size(max = 30)
 	private String telefono;
 
-	@NotBlank(message = "La especialidad es obligatoria")
-	@Size(max = 120)
-	private String especialidad;
-
-	@NotEmpty(message = "Debe asignar al menos una sucursal")
+	/** Sucursales asignadas; si viene en la edicion, reemplaza las anteriores. */
 	private List<UUID> sucursalIds;
 }

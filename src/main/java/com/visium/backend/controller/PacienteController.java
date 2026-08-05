@@ -3,6 +3,8 @@ package com.visium.backend.controller;
 import com.visium.backend.dto.paciente.PacienteRequest;
 import com.visium.backend.dto.paciente.PacienteResponse;
 import com.visium.backend.service.PacienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,23 +34,44 @@ public class PacienteController {
 	private final PacienteService pacienteService;
 
 	@GetMapping
+	@Operation(
+			summary = "Listar pacientes de una empresa",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve los pacientes de la empresa indicada. "
+					+ "Si el usuario tiene varias empresas, enviar la cabecera X-Empresa-Id.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<List<PacienteResponse>> listar(@RequestParam UUID empresaId) {
 		return ResponseEntity.ok(pacienteService.listarPorEmpresa(empresaId));
 	}
 
 	@GetMapping("/{id}")
+	@Operation(
+			summary = "Obtener paciente por id",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve el detalle de un paciente especifico.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<PacienteResponse> obtener(@PathVariable UUID id) {
 		return ResponseEntity.ok(pacienteService.obtenerPorId(id));
 	}
 
 	@PostMapping
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL', 'RECEPCIONISTA')")
+	@Operation(
+			summary = "Crear paciente",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE, JEFE_SUCURSAL o "
+					+ "RECEPCIONISTA. Registra un nuevo paciente en el sistema.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<PacienteResponse> crear(@Valid @RequestBody PacienteRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(pacienteService.crear(request));
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL', 'RECEPCIONISTA')")
+	@Operation(
+			summary = "Actualizar paciente",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE, JEFE_SUCURSAL o "
+					+ "RECEPCIONISTA. Modifica los datos de un paciente existente.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<PacienteResponse> actualizar(
 			@PathVariable UUID id,
 			@Valid @RequestBody PacienteRequest request
@@ -58,6 +81,11 @@ public class PacienteController {
 
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
+	@Operation(
+			summary = "Desactivar paciente",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE o JEFE_SUCURSAL. "
+					+ "Desactiva al paciente (no se elimina fisicamente).")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<Void> desactivar(@PathVariable UUID id) {
 		pacienteService.desactivar(id);
 		return ResponseEntity.noContent().build();
