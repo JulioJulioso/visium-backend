@@ -34,7 +34,7 @@ public class EmailService {
     @Value("${spring.mail.username:estayjose3@gmail.com}")
     private String correoRemitente;
 
-    @Async
+
     @Transactional
     public void enviarRecetaAutomatica(UUID recetaId) {
 
@@ -98,7 +98,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
             helper.setTo(tuCorreo); // Correo de destino
-            helper.setFrom(correoRemitente, "Óptica VISIUM");
+            helper.setFrom("estayjose3@gmail.com", "Óptica VISIUM");
             helper.setSubject("Prueba de Integración VISIUM");
             helper.setText("¡Felicidades! Tu backend en Spring Boot está enviando correos correctamente a través de Brevo.");
 
@@ -116,6 +116,7 @@ public class EmailService {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
 
+
             // 2. Configuramos destinatario y remitente
             helper.setTo(tuCorreoDestino);
             helper.setFrom(correoRemitente, razonSocial);
@@ -129,11 +130,12 @@ public class EmailService {
 
             // 4. Adjuntamos el PDF (convertimos los bytes crudos a un archivo adjunto)
             helper.addAttachment("Receta_Prueba.pdf", new org.springframework.core.io.ByteArrayResource(pdfBytes));
+            System.out.println(helper.getEncoding());
 
             // 5. ¡Enviamos!
             mailSender.send(mensaje);
+            System.out.println(mensaje.getContentType());
             log.info("¡Correo de prueba con PDF adjunto enviado con éxito a {}!", tuCorreoDestino);
-
         } catch (Exception e) {
             log.error("Error enviando correo de prueba con PDF: {}", e.getMessage(), e);
         }
