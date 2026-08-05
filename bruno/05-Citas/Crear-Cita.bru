@@ -1,0 +1,28 @@
+meta {
+  name: Crear Cita
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/citas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "citaId": "44444444-4444-4444-4444-444444444444",
+    "motivoConsulta": "Examen de vista de rutina",
+    "anamnesis": "Molestia ligera en ojo derecho",
+    "examenVisual": "Visión 20/20",
+    "diagnostico": "Refracción normal",
+    "observaciones": "Control en 6 meses",
+    "fechaInicio": "2026-08-10T09:00:00Z",
+    "fechaFin": "2026-08-10T09:30:00Z"
+  }
+}

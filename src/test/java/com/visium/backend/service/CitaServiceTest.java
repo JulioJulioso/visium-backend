@@ -21,7 +21,9 @@ import com.visium.backend.exception.BadRequestException;
 import com.visium.backend.exception.ForbiddenException;
 import com.visium.backend.mapper.CitaMapper;
 import com.visium.backend.repository.CitaRepository;
+import com.visium.backend.repository.PacienteRepository;
 import com.visium.backend.repository.ProfesionalRepository;
+import com.visium.backend.repository.SucursalRepository;
 import com.visium.backend.repository.UsuarioEmpresaRepository;
 import com.visium.backend.security.UsuarioDetails;
 import java.time.Instant;
@@ -53,7 +55,16 @@ class CitaServiceTest {
 	private ProfesionalRepository profesionalRepository;
 
 	@Mock
+	private SucursalRepository sucursalRepository;
+
+	@Mock
+	private PacienteRepository pacienteRepository;
+
+	@Mock
 	private UsuarioEmpresaRepository usuarioEmpresaRepository;
+
+	@Mock
+	private CitaMapper citaMapper;
 
 	@Mock
 	private AccesoService accesoService;
@@ -65,8 +76,10 @@ class CitaServiceTest {
 		citaService = new CitaService(
 				citaRepository,
 				profesionalRepository,
+				sucursalRepository,
+				pacienteRepository,
 				usuarioEmpresaRepository,
-				new CitaMapper(),
+				citaMapper,
 				accesoService);
 	}
 
@@ -82,6 +95,7 @@ class CitaServiceTest {
 		when(citaRepository.findByProfesionalIdAndFechaHoraInicioBetweenAndEstado(
 				eq(PROFESIONAL_ID), any(Instant.class), any(Instant.class), eq(EstadoCita.CONFIRMADA)))
 				.thenReturn(List.of(cita()));
+		when(citaMapper.toResponse(any(Cita.class))).thenReturn(citaResponse());
 
 		List<CitaResponse> citas = citaService.listarCitasConfirmadasPorProfesional(
 				PROFESIONAL_ID, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 10));
@@ -104,6 +118,7 @@ class CitaServiceTest {
 		when(citaRepository.findByProfesionalIdAndEstadoOrderByFechaHoraInicioAsc(
 				PROFESIONAL_ID, EstadoCita.CONFIRMADA))
 				.thenReturn(List.of(cita()));
+		when(citaMapper.toResponse(any(Cita.class))).thenReturn(citaResponse());
 
 		List<CitaResponse> citas = citaService.listarCitasConfirmadasPorProfesional(
 				PROFESIONAL_ID, null, null);
@@ -115,8 +130,6 @@ class CitaServiceTest {
 
 	@Test
 	void rangoInvalidoFalla() {
-		autenticar(roles("JEFE"), List.of(EMPRESA_ID), List.of());
-
 		assertThrows(BadRequestException.class, () -> citaService.listarCitasConfirmadasPorProfesional(
 				PROFESIONAL_ID, LocalDate.of(2026, 8, 10), LocalDate.of(2026, 8, 3)));
 
@@ -137,6 +150,19 @@ class CitaServiceTest {
 
 		verify(citaRepository, never()).findByProfesionalIdAndFechaHoraInicioBetweenAndEstado(
 				any(), any(), any(), any());
+	}
+
+	private CitaResponse citaResponse() {
+		return CitaResponse.builder()
+				.id(UUID.fromString("44444444-4444-4444-4444-444444444444"))
+				.empresaId(EMPRESA_ID)
+				.sucursalId(SUCURSAL_ID)
+				.pacienteId(PACIENTE_ID)
+				.profesionalId(PROFESIONAL_ID)
+				.fechaHoraInicio(Instant.parse("2026-08-05T15:00:00Z"))
+				.fechaHoraFin(Instant.parse("2026-08-05T15:30:00Z"))
+				.estado(EstadoCita.CONFIRMADA)
+				.build();
 	}
 
 	private Cita cita() {

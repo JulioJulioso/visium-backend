@@ -1,0 +1,29 @@
+meta {
+  name: Modificar Cita
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/citas/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 44444444-4444-4444-4444-444444444444
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "citaId": "44444444-4444-4444-4444-444444444444",
+    "motivoConsulta": "Examen de vista reprogramado",
+    "observaciones": "Se reprogramó la hora de inicio",
+    "fechaInicio": "2026-08-10T10:00:00Z",
+    "fechaFin": "2026-08-10T10:30:00Z"
+  }
+}
