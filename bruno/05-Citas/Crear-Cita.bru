@@ -1,0 +1,28 @@
+meta {
+  name: Crear Cita
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/citas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "empresaId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "sucursalId": "11111111-1111-1111-1111-111111111111",
+    "pacienteId": "22222222-2222-2222-2222-222222222222",
+    "profesionalId": "33333333-3333-3333-3333-333333333333",
+    "fechaHoraInicio": "2026-08-10T09:00:00Z",
+    "fechaHoraFin": "2026-08-10T09:30:00Z",
+    "motivo": "Examen de vista de rutina",
+    "observaciones": "Control en 6 meses"
+  }
+}

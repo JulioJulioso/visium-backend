@@ -7,8 +7,21 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+- CRUD de citas: `POST /citas`, `PUT /citas/{id}` y `DELETE /citas/{id}` (roles operativos; la agenda existente de lectura se mantiene)
+- `CitaRequest`: DTO de entrada con validación `@NotNull` + `@Valid` en el controller
+
+### Corregido
+- Aislamiento multi-empresa al crear/modificar citas: sucursal, paciente y profesional deben pertenecer a la empresa de la cita
+- `modificarCita` valida acceso a la empresa nueva al cambiar `empresaId` (antes solo validaba la empresa original)
+- Regla `fin > inicio` en crear y modificar citas
+- Máquina de estados: `PENDIENTE → CONFIRMADA/CANCELADA`, `CONFIRMADA → PENDIENTE/CANCELADA`, `CANCELADA → PENDIENTE`; `ATENDIDA` y `NO_ASISTIO` son terminales (no modificables)
+- Una cita nueva solo puede crearse como `PENDIENTE`
+- `eliminarCita` rechaza borrar citas con consulta registrada (protege la FK de `consultas`; antes derivaba en error de integridad 500)
+- `CitaMapper.toResponse` tolera relaciones nulas
+
 ### Planeado
-- CRUD de citas, consultas y recetas
+- CRUD de consultas y recetas
 - Dashboard
 
 ---
