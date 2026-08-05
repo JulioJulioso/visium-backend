@@ -28,7 +28,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * Configuracion real de seguridad: - /auth/login es publico - el resto requiere token JWT - CORS
+ * Configuracion real de seguridad: - /auth/login y recuperacion son publicos - el resto requiere token JWT - CORS
  * abierto para el frontend React (localhost:5173)
  */
 @Configuration
@@ -61,7 +61,7 @@ public class SecurityConfig {
                             writeJsonError(response, 403, "Forbidden", "Acceso denegado")))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/login")
+                auth.requestMatchers("/auth/login", "/auth/password-recovery/**")
                     .permitAll()
                     .requestMatchers(
                             "/api-docs",

@@ -100,4 +100,20 @@ public class EmailService {
             System.err.println("Error enviando correo de prueba: " + e.getMessage());
         }
     }
+
+    /** Envia el codigo sin registrarlo en logs ni incluir datos de autenticacion. */
+    public void enviarCodigoRecuperacion(String email, String code) {
+        try {
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje, false, "UTF-8");
+            helper.setTo(email);
+            helper.setFrom("onboarding@resend.dev", "Óptica VISIUM");
+            helper.setSubject("Código de recuperación de contraseña");
+            helper.setText("Tu código de recuperación es: " + code
+                    + "\n\nVence en 15 minutos. Si no solicitaste este cambio, ignora este correo.");
+            mailSender.send(mensaje);
+        } catch (Exception ignored) {
+            // La respuesta debe seguir siendo generica para no filtrar cuentas ni secretos.
+        }
+    }
 }

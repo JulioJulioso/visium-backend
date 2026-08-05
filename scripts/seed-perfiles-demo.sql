@@ -41,14 +41,19 @@ WHERE e.razon_social = 'Optica Norte SpA'
       WHERE s.empresa_id = e.id AND s.nombre = 'Sucursal Norte'
   );
 
--- SUPER_ADMIN
+-- SUPER_ADMIN (correo de administracion de la plataforma)
 INSERT INTO usuarios (id, nombre, apellido, email, password_hash, activo)
-SELECT
+VALUES (
     '11111111-1111-1111-1111-111111111111'::uuid,
-    'Super', 'Visium', 'super@visium.cl',
+    'Cristian', 'Fritz', 'cfritzsepulveda8@gmail.com',
     '$2a$10$v/LK2K7sGkcQFhPs34376Oez.W0UzX0HbBX80w2lfsk2L.nG2A28G',
     TRUE
-WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = 'super@visium.cl');
+)
+ON CONFLICT (id) DO UPDATE
+SET nombre = EXCLUDED.nombre,
+    apellido = EXCLUDED.apellido,
+    email = EXCLUDED.email,
+    activo = EXCLUDED.activo;
 
 INSERT INTO usuarios_empresas (id, usuario_id, empresa_id, activo)
 SELECT
@@ -56,7 +61,7 @@ SELECT
     u.id, e.id, TRUE
 FROM usuarios u
 CROSS JOIN empresas e
-WHERE u.email = 'super@visium.cl'
+WHERE u.email = 'cfritzsepulveda8@gmail.com'
   AND e.razon_social = 'Optica Visium Demo SpA'
   AND NOT EXISTS (
       SELECT 1 FROM usuarios_empresas ue
@@ -68,7 +73,7 @@ SELECT ue.id, r.id
 FROM usuarios_empresas ue
 JOIN usuarios u ON u.id = ue.usuario_id
 JOIN roles r ON r.codigo = 'SUPER_ADMIN'
-WHERE u.email = 'super@visium.cl'
+WHERE u.email = 'cfritzsepulveda8@gmail.com'
   AND NOT EXISTS (
       SELECT 1 FROM usuarios_empresas_roles x
       WHERE x.usuario_empresa_id = ue.id AND x.rol_id = r.id

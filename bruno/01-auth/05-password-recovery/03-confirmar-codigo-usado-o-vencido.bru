@@ -1,0 +1,30 @@
+meta {
+  name: 03 Confirmar codigo usado o vencido
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/password-recovery/confirm
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "cfritzsepulveda8@gmail.com",
+    "code": "REEMPLAZAR_CON_CODIGO_DEL_CORREO",
+    "newPassword": "ClaveNoDebeAplicarse2"
+  }
+}
+
+docs {
+  Usado: ejecute esta solicitud de nuevo con el codigo ya confirmado en la solicitud 02.
+  Vencido: solicite un codigo nuevo, espere mas de 15 minutos y reemplace el campo code.
+  En ambos casos se espera 200 con mensaje generico, pero la clave no debe cambiar.
+  Verifique con /auth/login: NuevaClaveSegura1 debe funcionar y ClaveNoDebeAplicarse2 debe fallar.
+}

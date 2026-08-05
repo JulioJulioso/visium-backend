@@ -1,0 +1,27 @@
+meta {
+  name: 01 Solicitar codigo de recuperacion
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/password-recovery
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "cfritzsepulveda8@gmail.com"
+  }
+}
+
+docs {
+  Esperado: 200 y el mensaje generico de recuperacion.
+  Obtenga el codigo de seis digitos desde el correo recibido. No lo guarde en variables de Bruno ni en este archivo.
+  La respuesta no debe incluir token, roles ni el codigo.
+}

@@ -1,0 +1,44 @@
+meta {
+  name: 01 Crear super admin de prueba
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/usuarios
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  X-Empresa-Id: {{empresaDemoId}}
+}
+
+body:json {
+  {
+    "empresaId": "{{empresaDemoId}}",
+    "nombre": "Cristian",
+    "apellido": "Fritz",
+    "email": "cfritzsepulveda8@gmail.com",
+    "password": "prueba123",
+    "run": "11111111-1",
+    "telefono": "+56911111111",
+    "rol": "SUPER_ADMIN",
+    "sucursalIds": []
+  }
+}
+
+tests {
+  test("Crea el usuario", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+
+docs {
+  Requiere un token SUPER_ADMIN. Usa empresaDemoId, definido en el entorno Local.
+  La solicitud falla si ya existe un usuario con este correo.
+}

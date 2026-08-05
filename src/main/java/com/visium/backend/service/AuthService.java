@@ -3,6 +3,8 @@ package com.visium.backend.service;
 import com.visium.backend.dto.auth.LoginRequest;
 import com.visium.backend.dto.auth.LoginResponse;
 import com.visium.backend.dto.auth.MeResponse;
+import com.visium.backend.dto.auth.PasswordRecoveryConfirmRequest;
+import com.visium.backend.dto.auth.PasswordRecoveryRequest;
 import com.visium.backend.entity.Usuario;
 import com.visium.backend.repository.UsuarioRepository;
 import com.visium.backend.security.EmpresaContext;
@@ -23,6 +25,7 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
 	private final UsuarioRepository usuarioRepository;
+	private final PasswordRecoveryService passwordRecoveryService;
 
 	public LoginResponse login(LoginRequest request) {
 		Authentication authentication = authenticationManager.authenticate(
@@ -71,6 +74,19 @@ public class AuthService {
 				detalles.getSucursalIds(),
 				empresaActiva
 		);
+	}
+
+	/** Nunca autentica ni genera JWT: la recuperacion solo actualiza la credencial. */
+	public void requestPasswordRecovery(PasswordRecoveryRequest request) {
+		passwordRecoveryService.request(request == null ? null : request.getEmail());
+	}
+
+	/** Nunca autentica ni genera JWT: la recuperacion solo actualiza la credencial. */
+	public void confirmPasswordRecovery(PasswordRecoveryConfirmRequest request) {
+		passwordRecoveryService.confirm(
+				request == null ? null : request.getEmail(),
+				request == null ? null : request.getCode(),
+				request == null ? null : request.getNewPassword());
 	}
 
 	private UUID sugerirEmpresaActiva(UsuarioDetails detalles) {
