@@ -34,7 +34,7 @@
 | Ver solo sucursales asignadas | — | — | Sí | Si aplica | Si aplica |
 | Contratar / despedir / editar roles en su empresa | Sí | Sí | Limitado* | No | No |
 | Pacientes / citas | Soporte | Sí | Sí (su alcance) | Sí | Ver / atender |
-| Consultas / recetas | Soporte | Ver | Ver | No | Sí |
+| Consultas / recetas | Soporte | Ver | Ver | Cierre operativo de cita | Sí |
 
 \*Un `JEFE_SUCURSAL` puede gestionar personal de **su** sucursal si el producto lo habilita; no administra toda la óptica.
 
@@ -86,6 +86,7 @@ Antes de crear una cita se debe validar que:
 - Una cita puede generar como máximo una consulta.
 - Una consulta solamente debe iniciarse para una cita confirmada.
 - Al finalizar una consulta, la cita debe cambiar a `ATENDIDA`.
+- Solo `RECEPCIONISTA` puede ejecutar el cierre operativo de la cita, pero no leer historial clínico ni gestionar recetas.
 
 ## Recetas ópticas
 

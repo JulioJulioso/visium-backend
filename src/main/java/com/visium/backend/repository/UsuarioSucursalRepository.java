@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface UsuarioSucursalRepository extends JpaRepository<UsuarioSucursal, UsuarioSucursal.UsuarioSucursalId> {
 
 	List<UsuarioSucursal> findByUsuarioEmpresaId(UUID usuarioEmpresaId);
+
+	void deleteByUsuarioEmpresaId(UUID usuarioEmpresaId);
 }

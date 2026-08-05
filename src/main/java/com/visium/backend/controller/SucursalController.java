@@ -3,6 +3,8 @@ package com.visium.backend.controller;
 import com.visium.backend.dto.sucursal.SucursalRequest;
 import com.visium.backend.dto.sucursal.SucursalResponse;
 import com.visium.backend.service.SucursalService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,23 +34,43 @@ public class SucursalController {
 	private final SucursalService sucursalService;
 
 	@GetMapping
+	@Operation(
+			summary = "Listar sucursales de una empresa",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve las sucursales de la empresa indicada.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<List<SucursalResponse>> listar(@RequestParam UUID empresaId) {
 		return ResponseEntity.ok(sucursalService.listarPorEmpresa(empresaId));
 	}
 
 	@GetMapping("/{id}")
+	@Operation(
+			summary = "Obtener sucursal por id",
+			description = "REQUIERE token JWT (cualquier rol autenticado). "
+					+ "Devuelve el detalle de una sucursal.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<SucursalResponse> obtener(@PathVariable UUID id) {
 		return ResponseEntity.ok(sucursalService.obtenerPorId(id));
 	}
 
 	@PostMapping
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@Operation(
+			summary = "Crear sucursal",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+					+ "Registra una nueva sucursal en una empresa.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<SucursalResponse> crear(@Valid @RequestBody SucursalRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(sucursalService.crear(request));
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@Operation(
+			summary = "Actualizar sucursal",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+					+ "Modifica los datos de una sucursal.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<SucursalResponse> actualizar(
 			@PathVariable UUID id,
 			@Valid @RequestBody SucursalRequest request
@@ -58,6 +80,11 @@ public class SucursalController {
 
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@Operation(
+			summary = "Desactivar sucursal",
+			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+					+ "Desactiva la sucursal (no se elimina fisicamente).")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<Void> desactivar(@PathVariable UUID id) {
 		sucursalService.desactivar(id);
 		return ResponseEntity.noContent().build();

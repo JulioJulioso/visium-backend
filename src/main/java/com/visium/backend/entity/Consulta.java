@@ -11,17 +11,15 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
-import java.util.UUID;
-
 /**
- * Representa una atencion clinica realizada a partir de una cita.
- * Una cita genera como maximo una consulta.
- * Tabla: consultas
+ * Representa una atencion clinica realizada a partir de una cita. Una cita genera como maximo una
+ * consulta. Tabla: consultas
  */
 @Entity
 @Table(name = "consultas")
@@ -30,53 +28,55 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Consulta {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "cita_id", nullable = false, unique = true)
-	private Cita cita;
+  @OneToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "cita_id", nullable = false, unique = true)
+  private Cita cita;
 
-	@Column(name = "motivo_consulta", columnDefinition = "TEXT")
-	private String motivoConsulta;
+  // TODO: consultar a la ayleen quien es el que crea la consulta
 
-	@Column(columnDefinition = "TEXT")
-	private String anamnesis;
+  @Column(name = "motivo_consulta", columnDefinition = "TEXT")
+  private String motivoConsulta;
 
-	@Column(name = "examen_visual", columnDefinition = "TEXT")
-	private String examenVisual;
+  @Column(columnDefinition = "TEXT")
+  private String anamnesis;
 
-	@Column(columnDefinition = "TEXT")
-	private String diagnostico;
+  @Column(name = "examen_visual", columnDefinition = "TEXT")
+  private String examenVisual;
 
-	@Column(columnDefinition = "TEXT")
-	private String observaciones;
+  @Column(columnDefinition = "TEXT")
+  private String diagnostico;
 
-	@Column(name = "fecha_inicio", nullable = false)
-	private Instant fechaInicio;
+  @Column(columnDefinition = "TEXT")
+  private String observaciones;
 
-	@Column(name = "fecha_fin")
-	private Instant fechaFin;
+  @Column(name = "fecha_inicio", nullable = false)
+  private Instant fechaInicio;
 
-	@Column(name = "created_at", nullable = false)
-	private Instant createdAt;
+  @Column(name = "fecha_fin")
+  private Instant fechaFin;
 
-	@Column(name = "updated_at", nullable = false)
-	private Instant updatedAt;
+  @Column(name = "created_at", nullable = false)
+  private Instant createdAt;
 
-	@PrePersist
-	void alCrear() {
-		Instant ahora = Instant.now();
-		if (fechaInicio == null) {
-			fechaInicio = ahora;
-		}
-		createdAt = ahora;
-		updatedAt = ahora;
-	}
+  @Column(name = "updated_at", nullable = false)
+  private Instant updatedAt;
 
-	@PreUpdate
-	void alActualizar() {
-		updatedAt = Instant.now();
-	}
+  @PrePersist
+  void alCrear() {
+    Instant ahora = Instant.now();
+    if (fechaInicio == null) {
+      fechaInicio = ahora;
+    }
+    createdAt = ahora;
+    updatedAt = ahora;
+  }
+
+  @PreUpdate
+  void alActualizar() {
+    updatedAt = Instant.now();
+  }
 }

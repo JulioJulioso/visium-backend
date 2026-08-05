@@ -5,6 +5,8 @@ import com.visium.backend.dto.auth.LoginResponse;
 import com.visium.backend.dto.auth.MeResponse;
 import com.visium.backend.security.UsuarioDetails;
 import com.visium.backend.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,21 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/login")
+	@Operation(
+			summary = "Iniciar sesion",
+			description = "Endpoint PUBLICO (no requiere token JWT). Valida email y contraseña, "
+					+ "y devuelve el token JWT necesario para consumir el resto de la API "
+					+ "(enviarlo en la cabecera Authorization: Bearer <token>).")
 	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 		return ResponseEntity.ok(authService.login(request));
 	}
 
 	@GetMapping("/me")
+	@Operation(
+			summary = "Obtener datos del usuario autenticado",
+			description = "REQUIERE token JWT (Authorization: Bearer <token>). Devuelve la "
+					+ "informacion del usuario asociado al token actual.")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<MeResponse> me(@AuthenticationPrincipal UsuarioDetails detalles) {
 		return ResponseEntity.ok(authService.me(detalles));
 	}

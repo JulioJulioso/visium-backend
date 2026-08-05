@@ -1,0 +1,20 @@
+meta {
+  name: PDF
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/recetas/test-pdf
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlckB2aXNpdW0uY2wiLCJ1c3VhcmlvSWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlcyI6WyJTVVBFUl9BRE1JTiJdLCJlbXByZXNhSWRzIjpbIjFjZGE5MmY4LTU4MGUtNGIxOC04MmFjLTExN2ZiYzRmN2E1OCJdLCJzdWN1cnNhbElkcyI6W10sImlhdCI6MTc4NTQyMzE0NCwiZXhwIjoxNzg1NTA5NTQ0fQ.P97lAKwdDLh0SxF879QCP8Vgm1KW4sb82VEllmnEbc8
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -5,6 +5,19 @@ spring:
   config:
     import: "optional:file:.env[.properties]"
 
+  # Email con Resend
+  mail:
+    host: smtp.resend.com
+    port: 587
+    username: "resend" # OJO: El usuario siempre es literalmente la palabra "resend"
+    password: "${RESEND_API_KEY}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   # Conexion a la base de datos PostgreSQL (contenedor Docker "visium-postgres")
   datasource:
     url: "${DB_URL:${URL}}"
@@ -35,3 +48,9 @@ visium:
     secret: "${JWT_SECRET}"
     # Duracion del token: 24 horas (en milisegundos)
     expiration-ms: 86400000
+
+# Documentacion API con Swagger (springdoc)
+springdoc:
+  api-docs:
+    path: /api-docs
+  show-actuator: false
