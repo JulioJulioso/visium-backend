@@ -82,10 +82,7 @@ public class ProfesionalService {
 			throw new BadRequestException("Ya existe un usuario con el email " + request.getEmail());
 		});
 
-		profesionalRepository.findByNumeroRegistro(request.getNumeroRegistro()).ifPresent(p -> {
-			throw new BadRequestException(
-					"Ya existe un profesional con el registro " + request.getNumeroRegistro());
-		});
+
 
 		Usuario usuario = new Usuario();
 		usuario.setNombre(request.getNombre());
@@ -113,7 +110,6 @@ public class ProfesionalService {
 
 		Profesional profesional = new Profesional();
 		profesional.setUsuario(usuario);
-		profesional.setNumeroRegistro(request.getNumeroRegistro());
 		profesional.setEspecialidad(request.getEspecialidad());
 		profesional.setActivo(true);
 		profesional = profesionalRepository.save(profesional);
@@ -143,7 +139,6 @@ public class ProfesionalService {
 				.nombre(usuario.getNombre())
 				.apellido(usuario.getApellido())
 				.email(usuario.getEmail())
-				.numeroRegistro(profesional.getNumeroRegistro())
 				.especialidad(profesional.getEspecialidad())
 				.activo(profesional.getActivo())
 				.sucursalIds(sucursalIds)
@@ -186,7 +181,6 @@ public class ProfesionalService {
 				.nombre(usuario.getNombre())
 				.apellido(usuario.getApellido())
 				.email(usuario.getEmail())
-				.numeroRegistro(profesional.getNumeroRegistro())
 				.especialidad(profesional.getEspecialidad())
 				.activo(profesional.getActivo())
 				.sucursalIds(sucursalIds)

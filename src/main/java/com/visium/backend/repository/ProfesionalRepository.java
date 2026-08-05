@@ -13,5 +13,4 @@ public interface ProfesionalRepository extends JpaRepository<Profesional, UUID> 
 
 	Optional<Profesional> findByUsuarioId(UUID usuarioId);
 
-	Optional<Profesional> findByNumeroRegistro(String numeroRegistro);
 }
