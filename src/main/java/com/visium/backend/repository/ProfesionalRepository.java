@@ -15,8 +15,6 @@ public interface ProfesionalRepository extends JpaRepository<Profesional, UUID> 
 
 	Optional<Profesional> findByUsuarioId(UUID usuarioId);
 
-	Optional<Profesional> findByNumeroRegistro(String numeroRegistro);
-
 	/**
 	 * Obtiene los profesionales asignados a una sucursal especifica
 	 * navegando a traves de las entidades Usuario, UsuarioEmpresa y UsuarioSucursal.
