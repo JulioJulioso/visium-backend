@@ -1,15 +1,15 @@
 meta {
-  name: Untitled
+  name: Listar Citas Confirmadas de Profesional
   type: http
   seq: 1
 }
 
 get {
-  url: 
+  url: {{baseUrl}}/citas/profesional/33333333-3333-3333-3333-333333333333?desde=2026-08-01&hasta=2026-08-31
   body: none
-  auth: inherit
+  auth: bearer
 }
 
-settings {
-  encodeUrl: true
+auth:bearer {
+  token: {{token}}
 }
