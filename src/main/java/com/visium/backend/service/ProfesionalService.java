@@ -68,6 +68,23 @@ public class ProfesionalService {
 		return response;
 	}
 
+	@Transactional(readOnly = true)
+	public List<ProfesionalResponse> listarPorSucursal(UUID sucursalId) {
+		Sucursal sucursal = sucursalRepository.findById(sucursalId)
+				.orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada: " + sucursalId));
+
+		// Verifica que el usuario autenticado tenga permiso en esta sucursal
+		accesoService.exigirAccesoSucursal(sucursal.getEmpresa().getId(), sucursalId);
+
+		List<Profesional> profesionales = profesionalRepository.findBySucursalId(sucursalId);
+
+		// 3. Mapear a DTO de respuesta y aplicar filtros de seguridad adicionales
+		return profesionales.stream()
+				.map(this::toResponse)
+				.filter(this::esVisible)
+				.toList();
+	}
+
 	@Transactional
 	public ProfesionalResponse registrar(ProfesionalRequest request) {
 		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());

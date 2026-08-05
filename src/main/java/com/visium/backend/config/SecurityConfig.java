@@ -65,6 +65,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
+                        .requestMatchers("/profesionales/sucursal/**")
+                        .permitAll()
                     .anyRequest()
                     .authenticated())
         .authenticationProvider(authenticationProvider())

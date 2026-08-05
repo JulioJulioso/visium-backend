@@ -37,6 +37,11 @@ public class ProfesionalController {
 	public ResponseEntity<ProfesionalResponse> obtener(@PathVariable UUID id) {
 		return ResponseEntity.ok(profesionalService.obtenerPorId(id));
 	}
+	@GetMapping("/sucursal/{sucursalId}")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
+	public ResponseEntity<List<ProfesionalResponse>> listarPorSucursal(@PathVariable UUID sucursalId) {
+		return ResponseEntity.ok(profesionalService.listarPorSucursal(sucursalId));
+	}
 
 	@PostMapping
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
