@@ -16,7 +16,6 @@ public class ProfesionalResponse {
 	private String nombre;
 	private String apellido;
 	private String email;
-	private String numeroRegistro;
 	private String especialidad;
 	private Boolean activo;
 	private List<UUID> sucursalIds;

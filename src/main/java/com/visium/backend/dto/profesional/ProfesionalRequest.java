@@ -44,10 +44,6 @@ public class ProfesionalRequest {
 	@Size(max = 30)
 	private String telefono;
 
-	@NotBlank(message = "El numero de registro es obligatorio")
-	@Size(max = 50)
-	private String numeroRegistro;
-
 	@NotBlank(message = "La especialidad es obligatoria")
 	@Size(max = 120)
 	private String especialidad;
