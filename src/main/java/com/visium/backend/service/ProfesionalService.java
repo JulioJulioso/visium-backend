@@ -68,6 +68,23 @@ public class ProfesionalService {
 		return response;
 	}
 
+	@Transactional(readOnly = true)
+	public List<ProfesionalResponse> listarPorSucursal(UUID sucursalId) {
+		Sucursal sucursal = sucursalRepository.findById(sucursalId)
+				.orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada: " + sucursalId));
+
+		// Verifica que el usuario autenticado tenga permiso en esta sucursal
+		accesoService.exigirAccesoSucursal(sucursal.getEmpresa().getId(), sucursalId);
+
+		List<Profesional> profesionales = profesionalRepository.findBySucursalId(sucursalId);
+
+		// 3. Mapear a DTO de respuesta y aplicar filtros de seguridad adicionales
+		return profesionales.stream()
+				.map(this::toResponse)
+				.filter(this::esVisible)
+				.toList();
+	}
+
 	@Transactional
 	public ProfesionalResponse registrar(ProfesionalRequest request) {
 		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());
@@ -82,10 +99,7 @@ public class ProfesionalService {
 			throw new BadRequestException("Ya existe un usuario con el email " + request.getEmail());
 		});
 
-		profesionalRepository.findByNumeroRegistro(request.getNumeroRegistro()).ifPresent(p -> {
-			throw new BadRequestException(
-					"Ya existe un profesional con el registro " + request.getNumeroRegistro());
-		});
+
 
 		Usuario usuario = new Usuario();
 		usuario.setNombre(request.getNombre());
@@ -113,7 +127,6 @@ public class ProfesionalService {
 
 		Profesional profesional = new Profesional();
 		profesional.setUsuario(usuario);
-		profesional.setNumeroRegistro(request.getNumeroRegistro());
 		profesional.setEspecialidad(request.getEspecialidad());
 		profesional.setActivo(true);
 		profesional = profesionalRepository.save(profesional);
@@ -143,7 +156,6 @@ public class ProfesionalService {
 				.nombre(usuario.getNombre())
 				.apellido(usuario.getApellido())
 				.email(usuario.getEmail())
-				.numeroRegistro(profesional.getNumeroRegistro())
 				.especialidad(profesional.getEspecialidad())
 				.activo(profesional.getActivo())
 				.sucursalIds(sucursalIds)
@@ -186,7 +198,6 @@ public class ProfesionalService {
 				.nombre(usuario.getNombre())
 				.apellido(usuario.getApellido())
 				.email(usuario.getEmail())
-				.numeroRegistro(profesional.getNumeroRegistro())
 				.especialidad(profesional.getEspecialidad())
 				.activo(profesional.getActivo())
 				.sucursalIds(sucursalIds)
