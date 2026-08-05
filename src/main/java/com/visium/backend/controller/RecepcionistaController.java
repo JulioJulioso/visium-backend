@@ -23,73 +23,79 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Gestion de recepcionistas (usuarios con rol RECEPCIONISTA).
- * Solo SUPER_ADMIN y JEFE operan este modulo.
+ * Gestion de recepcionistas (usuarios con rol RECEPCIONISTA). Solo SUPER_ADMIN y JEFE operan este
+ * modulo.
  */
 @RestController
 @RequestMapping("/recepcionistas")
 @RequiredArgsConstructor
 public class RecepcionistaController {
 
-	private final RecepcionistaService recepcionistaService;
+  private final RecepcionistaService recepcionistaService;
 
-	@GetMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
-	@Operation(
-			summary = "Listar recepcionistas",
-			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
-					+ "Devuelve todos los usuarios con rol RECEPCIONISTA.")
-	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<RecepcionistaResponse>> listar() {
-		return ResponseEntity.ok(recepcionistaService.listar());
-	}
+  @GetMapping
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+  @Operation(
+      summary = "Listar recepcionistas",
+      description =
+          "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+              + "Devuelve todos los usuarios con rol RECEPCIONISTA.")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<List<RecepcionistaResponse>> listar() {
+    return ResponseEntity.ok(recepcionistaService.listar());
+  }
 
-	@GetMapping("/{id}")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
-	@Operation(
-			summary = "Obtener recepcionista por id",
-			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
-					+ "Devuelve el detalle de un recepcionista especifico.")
-	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<RecepcionistaResponse> obtener(@PathVariable UUID id) {
-		return ResponseEntity.ok(recepcionistaService.obtenerPorId(id));
-	}
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+  @Operation(
+      summary = "Obtener recepcionista por id",
+      description =
+          "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+              + "Devuelve el detalle de un recepcionista especifico.")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<RecepcionistaResponse> obtener(@PathVariable UUID id) {
+    return ResponseEntity.ok(recepcionistaService.obtenerPorId(id));
+  }
 
-	@PostMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
-	@Operation(
-			summary = "Crear recepcionista",
-			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
-					+ "Crea un usuario con rol RECEPCIONISTA asignado automaticamente.")
-	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<RecepcionistaResponse> crear(
-			@Valid @RequestBody RecepcionistaRequest request) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(recepcionistaService.crear(request));
-	}
+  @PostMapping
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+  @Operation(
+      summary = "Crear recepcionista",
+      description =
+          "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+              + "Crea un usuario con rol RECEPCIONISTA asignado automaticamente.")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<RecepcionistaResponse> crear(
+      @Valid @RequestBody RecepcionistaRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(recepcionistaService.crear(request));
+  }
 
-	@PutMapping("/{id}")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
-	@Operation(
-			summary = "Editar recepcionista",
-			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
-					+ "Actualiza los datos del recepcionista.")
-	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<RecepcionistaResponse> editar(
-			@PathVariable UUID id, @Valid @RequestBody RecepcionistaRequest request) {
-		return ResponseEntity.ok(recepcionistaService.editar(id, request));
-	}
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+  @Operation(
+      summary = "Editar recepcionista",
+      description =
+          "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+              + "Actualiza los datos del recepcionista.")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<RecepcionistaResponse> editar(
+      @PathVariable UUID id, @Valid @RequestBody RecepcionistaRequest request) {
+    return ResponseEntity.ok(recepcionistaService.editar(id, request));
+  }
 
-	@PatchMapping("/{id}/estado")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
-	@Operation(
-			summary = "Activar o desactivar recepcionista",
-			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
-					+ "activo=true lo activa, activo=false lo desactiva. "
-					+ "Nunca se elimina al usuario, solo se desactiva.")
-	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<Void> cambiarEstado(
-			@PathVariable UUID id, @Valid @RequestBody CambiarEstadoRequest request) {
-		recepcionistaService.cambiarEstado(id, Boolean.TRUE.equals(request.getActivo()));
-		return ResponseEntity.noContent().build();
-	}
+  @PatchMapping("/{id}/estado")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+  @Operation(
+      summary = "Activar o desactivar recepcionista",
+      description =
+          "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
+              + "activo=true lo activa, activo=false lo desactiva. "
+              + "Nunca se elimina al usuario, solo se desactiva.")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<Void> cambiarEstado(
+      @PathVariable UUID id, @Valid @RequestBody CambiarEstadoRequest request) {
+    recepcionistaService.cambiarEstado(id, Boolean.TRUE.equals(request.getActivo()));
+    return ResponseEntity.noContent().build();
+  }
 }
+

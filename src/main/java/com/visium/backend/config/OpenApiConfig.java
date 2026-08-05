@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Configuracion de la documentacion OpenAPI (Swagger UI).
  *
- * <p>Define el esquema de seguridad "bearerAuth" para que Swagger muestre el boton "Authorize":
- * ahi se pega el token JWT obtenido en POST /auth/login y se envia como
- * {@code Authorization: Bearer <token>} en cada request.
+ * <p>Define el esquema de seguridad "bearerAuth" para que Swagger muestre el boton "Authorize": ahi
+ * se pega el token JWT obtenido en POST /auth/login y se envia como {@code Authorization: Bearer
+ * <token>} en cada request.
  */
 @Configuration
 public class OpenApiConfig {
@@ -26,10 +26,11 @@ public class OpenApiConfig {
                 .version("0.2.0")
                 .description(
                     "API de administracion de opticas VISIUM.\n\n"
-                        + "- La mayoria de endpoints requieren un token JWT en el header "
-                        + "`Authorization: Bearer <token>` (boton **Authorize**).\n"
+                        + "- La mayoria de endpoints requieren un token JWT en el header"
+                        + " `Authorization: Bearer <token>` (boton **Authorize**).\n"
                         + "- El token se obtiene en `POST /auth/login` (endpoint publico).\n"
-                        + "- Los roles con permisos se indican en la descripcion de cada endpoint."))
+                        + "- Los roles con permisos se indican en la descripcion de cada"
+                        + " endpoint."))
         .components(
             new Components()
                 .addSecuritySchemes(
@@ -41,3 +42,4 @@ public class OpenApiConfig {
                         .bearerFormat("JWT")));
   }
 }
+
