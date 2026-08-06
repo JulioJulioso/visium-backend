@@ -24,8 +24,8 @@ public class RecepcionistaService {
 	private final UsuarioService usuarioService;
 
 	@Transactional(readOnly = true)
-	public List<RecepcionistaResponse> listar() {
-		return usuarioService.listar().stream()
+	public List<RecepcionistaResponse> listar(UUID empresaId, UUID sucursalId) {
+		return usuarioService.listar(empresaId, sucursalId).stream()
 				.filter(r -> r.getRoles() != null && r.getRoles().contains(ROL_RECEPCIONISTA))
 				.map(this::toResponse)
 				.toList();

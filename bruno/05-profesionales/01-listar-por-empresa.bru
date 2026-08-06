@@ -1,0 +1,35 @@
+meta {
+  name: 01 Listar profesionales por empresa
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/profesionales?empresaId={{empresaDemoId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  X-Empresa-Id: {{empresaDemoId}}
+}
+
+tests {
+  test("Lista profesionales autenticado", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Prueba de regresión del listado usado por Gestión Administrativa.
+
+  Ejecutar antes: 01-auth / 01 Login SUPER_ADMIN, que actualiza la variable
+  de entorno `token`. La solicitud debe devolver 200 y un arreglo JSON.
+
+  Si devuelve 401, el problema está en la autenticación o seguridad del
+  backend, no en useFetch ni en el selector de empresa del frontend.
+}

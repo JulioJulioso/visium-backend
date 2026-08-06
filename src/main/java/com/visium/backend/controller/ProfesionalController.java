@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -38,8 +39,8 @@ public class ProfesionalController {
 			description = "REQUIERE token JWT (cualquier rol autenticado). "
 					+ "Devuelve todos los profesionales registrados.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<ProfesionalResponse>> listar() {
-		return ResponseEntity.ok(profesionalService.listar());
+	public ResponseEntity<List<ProfesionalResponse>> listar(@RequestParam UUID empresaId, @RequestParam(required = false) UUID sucursalId) {
+		return ResponseEntity.ok(profesionalService.listar(empresaId, sucursalId));
 	}
 
 	@GetMapping("/{id}")
@@ -53,7 +54,7 @@ public class ProfesionalController {
 	}
 
 	@PostMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Registrar profesional",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
@@ -65,8 +66,8 @@ public class ProfesionalController {
 				.body(profesionalService.registrar(request));
 	}
 
-	@PutMapping("/{id}") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PutMapping("/{id}") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	public ResponseEntity<ProfesionalResponse> editar(@PathVariable UUID id, @Valid @RequestBody ProfesionalRequest request) { return ResponseEntity.ok(profesionalService.editar(id, request)); }
-	@PatchMapping("/{id}/estado") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PatchMapping("/{id}/estado") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	public ResponseEntity<Void> cambiarEstado(@PathVariable UUID id, @RequestBody com.visium.backend.dto.usuario.CambiarEstadoRequest request) { profesionalService.cambiarEstado(id, Boolean.TRUE.equals(request.getActivo())); return ResponseEntity.noContent().build(); }
 }

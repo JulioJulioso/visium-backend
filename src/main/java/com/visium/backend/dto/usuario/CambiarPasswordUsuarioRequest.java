@@ -7,4 +7,7 @@ import lombok.Setter;
 public class CambiarPasswordUsuarioRequest {
   @NotBlank @Size(min = 6, message = "La contrasena debe tener al menos 6 caracteres")
   private String nuevaPassword;
+
+  @NotBlank(message = "La contrasena de confirmacion es obligatoria")
+  private String passwordConfirmacion;
 }

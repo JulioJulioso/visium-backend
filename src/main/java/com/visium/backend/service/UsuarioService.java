@@ -55,11 +55,17 @@ public class UsuarioService {
 	private final AccesoService accesoService;
 
 	@Transactional(readOnly = true)
-	public List<UsuarioResponse> listar() {
+	public List<UsuarioResponse> listar(UUID empresaId, UUID sucursalId) {
+		UUID empresaObjetivo = empresaId == null ? null : accesoService.resolverEmpresaObjetivo(empresaId);
+		if (empresaObjetivo != null) {
+			accesoService.exigirAccesoEmpresa(empresaObjetivo);
+		}
 		return usuarioRepository.findAll().stream()
 				.flatMap(usuario -> usuarioEmpresaRepository.findByUsuarioId(usuario.getId()).stream())
 				.map(this::toResponse)
 				.filter(this::esVisible)
+				.filter(usuario -> empresaObjetivo == null || empresaObjetivo.equals(usuario.getEmpresaId()))
+				.filter(usuario -> sucursalId == null || usuario.getSucursalIds().contains(sucursalId))
 				.toList();
 	}
 
@@ -197,11 +203,26 @@ public class UsuarioService {
 	}
 
 	@Transactional
-	public void cambiarPassword(UUID usuarioId, String nuevaPassword) {
+	public void cambiarPassword(UUID usuarioId, String nuevaPassword, String passwordConfirmacion) {
+		if (!passwordEncoder.matches(passwordConfirmacion, accesoService.usuarioActual().getPassword())) {
+			throw new ForbiddenException("La contrasena de confirmacion no es valida");
+		}
 		Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + usuarioId));
 		boolean visible = usuarioEmpresaRepository.findByUsuarioId(usuarioId).stream().anyMatch(p -> accesoService.puedeAccederEmpresa(p.getEmpresa().getId()));
 		if (!visible) throw new ForbiddenException("No tienes acceso a ese usuario");
 		usuario.setPasswordHash(passwordEncoder.encode(nuevaPassword)); usuarioRepository.save(usuario);
+	}
+
+	@Transactional
+	public void cambiarMiPassword(String passwordActual, String nuevaPassword) {
+		var operador = accesoService.usuarioActual();
+		if (!passwordEncoder.matches(passwordActual, operador.getPassword())) {
+			throw new ForbiddenException("La contrasena actual no es valida");
+		}
+		Usuario usuario = usuarioRepository.findById(operador.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+		usuario.setPasswordHash(passwordEncoder.encode(nuevaPassword));
+		usuarioRepository.save(usuario);
 	}
 
 	private void validarRolAsignable(String rol) {

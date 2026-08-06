@@ -34,9 +34,31 @@ public class Profesional {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "usuario_id", nullable = false, unique = true)
+	/** Relación histórica; los nuevos profesionales no crean cuenta de acceso. */
+	@OneToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "usuario_id", nullable = true, unique = true)
 	private Usuario usuario;
+
+	@Column(name = "empresa_id")
+	private UUID empresaId;
+
+	@Column(name = "sucursal_id")
+	private UUID sucursalId;
+
+	@Column(length = 100)
+	private String nombre;
+
+	@Column(length = 100)
+	private String apellido;
+
+	@Column(length = 254)
+	private String email;
+
+	@Column(length = 12)
+	private String run;
+
+	@Column(length = 30)
+	private String telefono;
 
 	@Column(name = "numero_registro", nullable = false, unique = true, length = 50)
 	private String numeroRegistro;

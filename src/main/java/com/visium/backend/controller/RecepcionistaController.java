@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,18 +35,18 @@ public class RecepcionistaController {
 	private final RecepcionistaService recepcionistaService;
 
 	@GetMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Listar recepcionistas",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
 					+ "Devuelve todos los usuarios con rol RECEPCIONISTA.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<RecepcionistaResponse>> listar() {
-		return ResponseEntity.ok(recepcionistaService.listar());
+	public ResponseEntity<List<RecepcionistaResponse>> listar(@RequestParam UUID empresaId, @RequestParam(required = false) UUID sucursalId) {
+		return ResponseEntity.ok(recepcionistaService.listar(empresaId, sucursalId));
 	}
 
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Obtener recepcionista por id",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
@@ -56,7 +57,7 @@ public class RecepcionistaController {
 	}
 
 	@PostMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Crear recepcionista",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
@@ -68,7 +69,7 @@ public class RecepcionistaController {
 	}
 
 	@PutMapping("/{id}")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Editar recepcionista",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
@@ -80,7 +81,7 @@ public class RecepcionistaController {
 	}
 
 	@PatchMapping("/{id}/estado")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Activar o desactivar recepcionista",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "

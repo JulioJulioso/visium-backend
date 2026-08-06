@@ -34,7 +34,7 @@ public class ProfesionalRequest {
 	@Size(max = 254)
 	private String email;
 
-	@Size(min = 6, message = "La contrasena debe tener al menos 6 caracteres")
+	/** Campo legado ignorado por los nuevos formularios; se eliminará al migrar perfiles históricos. */
 	private String password;
 
 	@Size(max = 12)

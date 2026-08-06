@@ -2,6 +2,7 @@ package com.visium.backend.controller;
 
 import com.visium.backend.dto.usuario.CambiarEstadoRequest;
 import com.visium.backend.dto.usuario.CambiarPasswordUsuarioRequest;
+import com.visium.backend.dto.usuario.CambiarMiPasswordRequest;
 import com.visium.backend.dto.usuario.UsuarioRequest;
 import com.visium.backend.dto.usuario.UsuarioResponse;
 import com.visium.backend.service.UsuarioService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -35,14 +37,16 @@ public class UsuarioController {
 	private final UsuarioService usuarioService;
 
 	@GetMapping
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'ADMINISTRADOR_SUCURSALES', 'JEFE_SUCURSAL')")
 	@Operation(
 			summary = "Listar usuarios",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
 					+ "Devuelve todos los usuarios del sistema.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<UsuarioResponse>> listar() {
-		return ResponseEntity.ok(usuarioService.listar());
+	public ResponseEntity<List<UsuarioResponse>> listar(
+			@RequestParam(required = false) UUID empresaId,
+			@RequestParam(required = false) UUID sucursalId) {
+		return ResponseEntity.ok(usuarioService.listar(empresaId, sucursalId));
 	}
 
 	@GetMapping("/{id}")
@@ -98,6 +102,12 @@ public class UsuarioController {
 	@PatchMapping("/{id}/password")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'ADMINISTRADOR_SUCURSALES', 'JEFE_SUCURSAL')")
 	public ResponseEntity<Void> cambiarPassword(@PathVariable UUID id, @Valid @RequestBody CambiarPasswordUsuarioRequest request) {
-		usuarioService.cambiarPassword(id, request.getNuevaPassword()); return ResponseEntity.noContent().build();
+		usuarioService.cambiarPassword(id, request.getNuevaPassword(), request.getPasswordConfirmacion()); return ResponseEntity.noContent().build();
+	}
+
+	@PatchMapping("/me/password")
+	public ResponseEntity<Void> cambiarMiPassword(@Valid @RequestBody CambiarMiPasswordRequest request) {
+		usuarioService.cambiarMiPassword(request.getPasswordActual(), request.getNuevaPassword());
+		return ResponseEntity.noContent().build();
 	}
 }

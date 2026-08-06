@@ -30,6 +30,9 @@ public class SucursalService {
 		List<UUID> sucursalesPermitidas = accesoService.sucursalIdsVisiblesEnEmpresa();
 
 		return sucursalRepository.findByEmpresaId(empresa).stream()
+				// Las instalaciones antiguas pueden conservar filas creadas antes de que
+				// el contrato exigiera todos los datos. No son sucursales utilizables.
+				.filter(this::esSucursalListable)
 				.filter(s -> sucursalesPermitidas.isEmpty() || sucursalesPermitidas.contains(s.getId()))
 				.map(sucursalMapper::toResponse)
 				.toList();
@@ -91,5 +94,18 @@ public class SucursalService {
 	private Sucursal buscarOFallar(UUID id) {
 		return sucursalRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada: " + id));
+	}
+
+	private boolean esSucursalListable(Sucursal sucursal) {
+		return sucursal != null
+				&& sucursal.getId() != null
+				&& sucursal.getEmpresa() != null
+				&& sucursal.getEmpresa().getId() != null
+				&& tieneTexto(sucursal.getNombre())
+				&& tieneTexto(sucursal.getDireccion());
+	}
+
+	private boolean tieneTexto(String valor) {
+		return valor != null && !valor.isBlank();
 	}
 }

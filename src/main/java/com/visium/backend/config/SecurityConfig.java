@@ -1,6 +1,7 @@
 package com.visium.backend.config;
 
 import com.visium.backend.security.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +59,10 @@ public class SecurityConfig {
                             writeJsonError(response, 403, "Forbidden", "Acceso denegado")))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/login", "/auth/password-recovery/**")
+                // Si un controlador falla, el despacho interno a /error no debe
+                // convertirse artificialmente en 401 y ocultar la causa real.
+                auth.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                    .requestMatchers("/auth/login", "/auth/password-recovery/**")
                     .permitAll()
                     .requestMatchers(
                             "/api-docs",
