@@ -23,6 +23,7 @@ import com.visium.backend.repository.UsuarioRepository;
 import com.visium.backend.repository.UsuarioSucursalRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,6 +54,7 @@ public class ProfesionalService {
 	public List<ProfesionalResponse> listar() {
 		return profesionalRepository.findAll().stream()
 				.map(this::toResponse)
+				.filter(Objects::nonNull)
 				.filter(this::esVisible)
 				.toList();
 	}
@@ -62,6 +64,9 @@ public class ProfesionalService {
 		Profesional profesional = profesionalRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado: " + id));
 		ProfesionalResponse response = toResponse(profesional);
+		if (response == null) {
+			throw new ResourceNotFoundException("Profesional no encontrado: " + id);
+		}
 		if (!esVisible(response)) {
 			throw new ForbiddenException("No tienes acceso a ese profesional");
 		}
@@ -81,6 +86,7 @@ public class ProfesionalService {
 		// 3. Mapear a DTO de respuesta y aplicar filtros de seguridad adicionales
 		return profesionales.stream()
 				.map(this::toResponse)
+				.filter(Objects::nonNull)
 				.filter(this::esVisible)
 				.toList();
 	}
@@ -180,6 +186,10 @@ public class ProfesionalService {
 
 	private ProfesionalResponse toResponse(Profesional profesional) {
 		Usuario usuario = profesional.getUsuario();
+		if (usuario == null) {
+			// Dato corrupto: profesional sin usuario asociado. Se omite del listado.
+			return null;
+		}
 		List<UsuarioEmpresa> pertenencias = usuarioEmpresaRepository.findByUsuarioId(usuario.getId());
 		UUID empresaId = pertenencias.isEmpty() ? null : pertenencias.getFirst().getEmpresa().getId();
 

@@ -32,7 +32,7 @@ public class EmpresaController {
 
 	private final EmpresaService empresaService;
 
-	@GetMapping("/")
+	@GetMapping
 	@Operation(
 			summary = "Listar empresas",
 			description = "REQUIERE token JWT (cualquier rol autenticado). "

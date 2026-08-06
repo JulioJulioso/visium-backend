@@ -49,6 +49,31 @@ public class CitaService {
 	private final CitaMapper citaMapper;
 	private final AccesoService accesoService;
 
+	/**
+	 * Listado de citas de la empresa activa (X-Empresa-Id), filtradas por estado y rango de fechas,
+	 * restringidas a las sucursales autorizadas del usuario.
+	 */
+	@Transactional(readOnly = true)
+	public List<CitaResponse> listarCitas(EstadoCita estado, LocalDate desde, LocalDate hasta) {
+		if (desde != null && hasta != null && hasta.isBefore(desde)) {
+			throw new BadRequestException("El rango de fechas es invalido: hasta no puede ser antes de desde");
+		}
+
+		UUID empresaId = accesoService.resolverEmpresaObjetivo(null);
+		List<UUID> sucursalesVisibles = accesoService.sucursalIdsVisiblesEnEmpresa();
+
+		LocalDate inicioReal = desde != null ? desde : LocalDate.of(1970, 1, 1);
+		LocalDate finReal = hasta != null ? hasta : LocalDate.of(9999, 12, 31);
+		Instant inicio = inicioReal.atStartOfDay().toInstant(ZoneOffset.UTC);
+		Instant fin = finReal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
+		return citaRepository.listarEnRango(empresaId, sucursalesVisibles, estado, inicio, fin)
+				.stream()
+				.filter(this::tieneAccesoACita)
+				.map(citaMapper::toResponse)
+				.toList();
+	}
+
 	@Transactional(readOnly = true)
 	public List<CitaResponse> listarCitasConfirmadasPorProfesional(
 			UUID profesionalId, LocalDate desde, LocalDate hasta) {

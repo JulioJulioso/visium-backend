@@ -39,7 +39,8 @@ public class SucursalController {
 			description = "REQUIERE token JWT (cualquier rol autenticado). "
 					+ "Devuelve las sucursales de la empresa indicada.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<SucursalResponse>> listar(@RequestParam UUID empresaId) {
+	public ResponseEntity<List<SucursalResponse>> listar(
+			@RequestParam(required = false) UUID empresaId) {
 		return ResponseEntity.ok(sucursalService.listarPorEmpresa(empresaId));
 	}
 

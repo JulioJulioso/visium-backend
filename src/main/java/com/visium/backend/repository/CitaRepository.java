@@ -77,4 +77,26 @@ public interface CitaRepository extends JpaRepository<Cita, UUID> {
 			@Param("desde") Instant desde,
 			Pageable pageable
 	);
+
+	/**
+	 * Listado de citas de la empresa en un rango de fechas, para las sucursales indicadas.
+	 * Si sucursalIds es null o vacio, toma todas las de la empresa.
+	 * El estado es opcional: si es null, devuelve citas de cualquier estado.
+	 */
+	@Query("""
+			SELECT c FROM Cita c
+			WHERE c.empresaId = :empresaId
+			  AND (:estado IS NULL OR c.estado = :estado)
+			  AND c.fechaHoraInicio >= :desde
+			  AND c.fechaHoraInicio < :hasta
+			  AND (:sucursalIds IS NULL OR c.sucursal.id IN :sucursalIds)
+			ORDER BY c.fechaHoraInicio ASC
+			""")
+	List<Cita> listarEnRango(
+			@Param("empresaId") UUID empresaId,
+			@Param("sucursalIds") List<UUID> sucursalIds,
+			@Param("estado") EstadoCita estado,
+			@Param("desde") Instant desde,
+			@Param("hasta") Instant hasta
+	);
 }

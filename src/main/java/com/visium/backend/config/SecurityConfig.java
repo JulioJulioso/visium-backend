@@ -72,8 +72,6 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
-                        .requestMatchers("/profesionales/sucursal/**")
-                        .permitAll()
                     .anyRequest()
                     .authenticated())
         .authenticationProvider(authenticationProvider())
@@ -104,8 +102,8 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    // Origen del frontend React (Vite)
-    config.setAllowedOrigins(List.of("http://localhost:5173"));
+    // Origen del frontend React (Vite): localhost y red local (dev)
+    config.setAllowedOriginPatterns(List.of("*"));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);

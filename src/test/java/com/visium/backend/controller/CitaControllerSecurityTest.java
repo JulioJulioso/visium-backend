@@ -81,6 +81,36 @@ class CitaControllerSecurityTest {
 	}
 
 	@Test
+	@WithMockUser(roles = "RECEPCIONISTA")
+	void recepcionistaPuedeListarCitasDeEmpresa() {
+		when(citaService.listarCitas(any(), any(), any())).thenReturn(List.of(response()));
+
+		assertDoesNotThrow(() -> citaController.listarCitas(null, DESDE, HASTA));
+
+		verify(citaService).listarCitas(null, DESDE, HASTA);
+	}
+
+	@Test
+	@WithMockUser(roles = "PROFESIONAL")
+	void profesionalPuedeListarCitasDeEmpresa() {
+		when(citaService.listarCitas(any(), any(), any())).thenReturn(List.of(response()));
+
+		assertDoesNotThrow(() -> citaController.listarCitas(EstadoCita.CONFIRMADA, null, null));
+
+		verify(citaService).listarCitas(EstadoCita.CONFIRMADA, null, null);
+	}
+
+	@Test
+	@WithMockUser(roles = "SUPER_ADMIN")
+	void superAdminPuedeListarCitasDeEmpresa() {
+		when(citaService.listarCitas(any(), any(), any())).thenReturn(List.of(response()));
+
+		assertDoesNotThrow(() -> citaController.listarCitas(null, null, null));
+
+		verify(citaService).listarCitas(null, null, null);
+	}
+
+	@Test
 	@WithMockUser(roles = "JEFE_SUCURSAL")
 	void jefeSucursalNoPuedeListarCitas() {
 		assertThrows(AccessDeniedException.class, () -> citaController.listarCitasConfirmadasPorProfesional(

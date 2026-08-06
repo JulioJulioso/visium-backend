@@ -47,8 +47,11 @@ public class PacienteController {
 					+ "Si el usuario tiene varias empresas, enviar la cabecera X-Empresa-Id.")
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<PacientePageResponse> listar(
-			@Parameter(description = "Id de la empresa cuyos pacientes se listan", required = true)
-					@RequestParam UUID empresaId,
+			@Parameter(
+							description = "Id de la empresa cuyos pacientes se listan (opcional si se envia X-Empresa-Id)",
+							required = false)
+					@RequestParam(required = false)
+					UUID empresaId,
 			@Parameter(
 							description = "Texto de busqueda (opcional): filtra por nombre, apellido, "
 									+ "documento, email o telefono. Vacio = sin filtro",

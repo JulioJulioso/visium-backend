@@ -2,6 +2,7 @@ package com.visium.backend.controller;
 
 import com.visium.backend.dto.cita.CitaRequest;
 import com.visium.backend.dto.cita.CitaResponse;
+import com.visium.backend.enums.EstadoCita;
 import com.visium.backend.service.CitaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,6 +34,21 @@ public class CitaController {
 			"hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL', 'RECEPCIONISTA', 'PROFESIONAL')";
 
 	private final CitaService citaService;
+
+	@GetMapping
+	@PreAuthorize(ROLES_OPERATIVOS)
+	@Operation(
+			summary = "Listar citas de la empresa activa",
+			description = "REQUIERE token JWT y header X-Empresa-Id si el usuario tiene varias empresas. "
+					+ "Roles: todos. Devuelve las citas de la empresa (sucursales autorizadas), "
+					+ "con filtros opcionales por estado y rango de fechas (formato yyyy-MM-dd).")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<List<CitaResponse>> listarCitas(
+			@RequestParam(required = false) EstadoCita estado,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+		return ResponseEntity.ok(citaService.listarCitas(estado, desde, hasta));
+	}
 
 	@GetMapping("/profesional/{profesionalId}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL')")

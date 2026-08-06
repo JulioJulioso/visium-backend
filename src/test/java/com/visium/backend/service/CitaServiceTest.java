@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -167,6 +168,64 @@ class CitaServiceTest {
 
 		verify(citaRepository, never()).findByProfesionalIdAndFechaHoraInicioBetweenAndEstado(
 				any(), any(), any(), any());
+	}
+
+	// ===== listarCitas (listado general por empresa) =====
+
+	@Test
+	void listarCitasDeEmpresaConFiltros() {
+		autenticar(roles("JEFE"), List.of(EMPRESA_ID), List.of());
+		when(accesoService.resolverEmpresaObjetivo(null)).thenReturn(EMPRESA_ID);
+		when(accesoService.sucursalIdsVisiblesEnEmpresa()).thenReturn(List.of());
+		when(citaRepository.listarEnRango(
+				eq(EMPRESA_ID), eq(List.of()), eq(EstadoCita.CONFIRMADA),
+				any(Instant.class), any(Instant.class)))
+				.thenReturn(List.of(cita()));
+		when(citaMapper.toResponse(any(Cita.class))).thenReturn(citaResponse());
+
+		List<CitaResponse> citas = citaService.listarCitas(
+				EstadoCita.CONFIRMADA, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 10));
+
+		assertEquals(1, citas.size());
+		assertEquals(EstadoCita.CONFIRMADA, citas.getFirst().getEstado());
+		verify(accesoService).resolverEmpresaObjetivo(null);
+	}
+
+	@Test
+	void listarCitasSinFiltrosUsaRangoCompleto() {
+		autenticar(roles("JEFE"), List.of(EMPRESA_ID), List.of());
+		when(accesoService.resolverEmpresaObjetivo(null)).thenReturn(EMPRESA_ID);
+		when(accesoService.sucursalIdsVisiblesEnEmpresa()).thenReturn(List.of());
+		when(citaRepository.listarEnRango(any(), any(), any(), any(), any())).thenReturn(List.of(cita()));
+		when(citaMapper.toResponse(any(Cita.class))).thenReturn(citaResponse());
+
+		List<CitaResponse> citas = citaService.listarCitas(null, null, null);
+
+		assertEquals(1, citas.size());
+		verify(citaRepository).listarEnRango(
+				eq(EMPRESA_ID), eq(List.of()), isNull(), any(Instant.class), any(Instant.class));
+	}
+
+	@Test
+	void listarCitasConRangoInvalidoFalla() {
+		assertThrows(BadRequestException.class, () -> citaService.listarCitas(
+				null, LocalDate.of(2026, 8, 10), LocalDate.of(2026, 8, 3)));
+
+		verify(citaRepository, never()).listarEnRango(any(), any(), any(), any(), any());
+	}
+
+	@Test
+	void listarCitasFiltraLasDeSucursalesSinAcceso() {
+		autenticar(roles("JEFE_SUCURSAL"), List.of(EMPRESA_ID), List.of(OTRA_SUCURSAL_ID));
+		when(accesoService.resolverEmpresaObjetivo(null)).thenReturn(EMPRESA_ID);
+		when(accesoService.sucursalIdsVisiblesEnEmpresa()).thenReturn(List.of(OTRA_SUCURSAL_ID));
+		when(citaRepository.listarEnRango(any(), any(), any(), any(), any())).thenReturn(List.of(cita()));
+		doThrow(new ForbiddenException("No tienes acceso a esa sucursal"))
+				.when(accesoService).exigirAccesoSucursal(EMPRESA_ID, SUCURSAL_ID);
+
+		List<CitaResponse> citas = citaService.listarCitas(null, null, null);
+
+		assertEquals(0, citas.size());
 	}
 
 	// ===== crearCita: casos raros / frontera =====

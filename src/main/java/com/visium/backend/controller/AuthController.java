@@ -1,5 +1,6 @@
 package com.visium.backend.controller;
 
+import com.visium.backend.dto.auth.CambiarContrasenaRequest;
 import com.visium.backend.dto.auth.LoginRequest;
 import com.visium.backend.dto.auth.LoginResponse;
 import com.visium.backend.dto.auth.MeResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +52,18 @@ public class AuthController {
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<MeResponse> me(@AuthenticationPrincipal UsuarioDetails detalles) {
 		return ResponseEntity.ok(authService.me(detalles));
+	}
+
+	@PutMapping("/me/password")
+	@Operation(
+			summary = "Cambiar la contrasena del usuario autenticado",
+			description = "REQUIERE token JWT. Valida la contrasena actual y la reemplaza por la nueva.")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<Void> cambiarContrasena(
+			@AuthenticationPrincipal UsuarioDetails detalles,
+			@Valid @RequestBody CambiarContrasenaRequest request) {
+		authService.cambiarContrasena(detalles, request);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/password-recovery")

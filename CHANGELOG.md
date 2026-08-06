@@ -10,6 +10,8 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ### Added
 - CRUD de citas: `POST /citas`, `PUT /citas/{id}` y `DELETE /citas/{id}` (roles operativos; la agenda existente de lectura se mantiene)
 - `CitaRequest`: DTO de entrada con validación `@NotNull` + `@Valid` en el controller
+- `GET /citas`: listado general de citas de la empresa activa (`X-Empresa-Id`), con filtros opcionales por `estado` y rango `desde`/`hasta`; restringido a las sucursales autorizadas del usuario (todos los roles)
+- `PUT /auth/me/password`: cambio de contraseña del usuario autenticado (valida la contraseña actual; mínimo 8 caracteres)
 
 ### Corregido
 - Aislamiento multi-empresa al crear/modificar citas: sucursal, paciente y profesional deben pertenecer a la empresa de la cita
@@ -19,6 +21,11 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Una cita nueva solo puede crearse como `PENDIENTE`
 - `eliminarCita` rechaza borrar citas con consulta registrada (protege la FK de `consultas`; antes derivaba en error de integridad 500)
 - `CitaMapper.toResponse` tolera relaciones nulas
+- `GET /empresas` ya no exige barra final (Spring 6 no tolera trailing slash)
+- `GET /pacientes` y `GET /sucursales` ya no exigen `empresaId` como query param obligatorio: la empresa se resuelve por `X-Empresa-Id` (o única empresa), igual que `GET /citas`
+- `ProfesionalService` tolera profesionales sin `usuario` asociado (dato corrupto): los omite del listado en vez de lanzar NPE
+- `GlobalExceptionHandler` ahora cubre excepciones no controladas (`MissingServletRequestParameterException` → 400, `MethodArgumentTypeMismatchException` → 400, `HttpRequestMethodNotSupportedException` → 405, `NoResourceFoundException` → 404, `Exception` → 500). Antes derivaban al endpoint `/error`, que la cadena de seguridad respondía como 401 "No autenticado" y el frontend lo interpretaba como sesión expirada (cerraba sesión al entrar a Gestión de Citas)
+- Cierre del hueco de seguridad: `/profesionales/sucursal/**` pasó de `permitAll` a requerir autenticación
 
 ### Planeado
 - CRUD de consultas y recetas
