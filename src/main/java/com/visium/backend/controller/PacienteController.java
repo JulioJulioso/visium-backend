@@ -42,8 +42,9 @@ public class PacienteController {
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<List<PacienteResponse>> listar(
 			@RequestParam UUID empresaId,
-			@RequestParam(required = false) String busqueda) {
-		return ResponseEntity.ok(pacienteService.buscarPorEmpresa(empresaId, busqueda));
+			@RequestParam(required = false) String busqueda,
+			@RequestParam(required = false) UUID sucursalId) {
+		return ResponseEntity.ok(pacienteService.buscarPorEmpresa(empresaId, busqueda, sucursalId));
 	}
 
 	@GetMapping("/{id}")

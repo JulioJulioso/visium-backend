@@ -43,6 +43,9 @@ public class Paciente {
 	@JoinColumn(name = "empresa_id", nullable = false)
 	private Empresa empresa;
 
+	@Column(name = "sucursal_id")
+	private UUID sucursalId;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_documento", nullable = false, length = 20)
 	private TipoDocumento tipoDocumento = TipoDocumento.RUN;

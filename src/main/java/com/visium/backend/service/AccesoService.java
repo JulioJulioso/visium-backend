@@ -112,6 +112,23 @@ public class AccesoService {
 				"Tienes varias empresas: envia el header X-Empresa-Id");
 	}
 
+	/** Resuelve la sucursal solicitada o la única sucursal asignada al usuario. */
+	public UUID resolverSucursalObjetivo(UUID empresaId, UUID sucursalIdSolicitada) {
+		if (sucursalIdSolicitada != null) {
+			exigirAccesoSucursal(empresaId, sucursalIdSolicitada);
+			return sucursalIdSolicitada;
+		}
+
+		List<UUID> propias = sucursalIdsVisiblesEnEmpresa();
+		if (propias.size() == 1) {
+			return propias.getFirst();
+		}
+		if (propias.isEmpty()) {
+			throw new BadRequestException("Indica la sucursal activa para esta operación");
+		}
+		throw new BadRequestException("Tienes varias sucursales: selecciona una sucursal activa");
+	}
+
 	/** Empresas visibles en un listado. */
 	public List<UUID> empresaIdsVisibles() {
 		if (esSuperAdmin()) {

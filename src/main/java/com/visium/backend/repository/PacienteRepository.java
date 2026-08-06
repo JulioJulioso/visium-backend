@@ -15,6 +15,8 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
 	List<Paciente> findByEmpresaId(UUID empresaId);
 
+	List<Paciente> findByEmpresaIdAndSucursalId(UUID empresaId, UUID sucursalId);
+
 	@Query("""
 			SELECT paciente FROM Paciente paciente
 			WHERE paciente.empresa.id = :empresaId

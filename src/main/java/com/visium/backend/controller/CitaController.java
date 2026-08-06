@@ -1,6 +1,7 @@
 package com.visium.backend.controller;
 
 import com.visium.backend.dto.cita.CitaResponse;
+import com.visium.backend.dto.cita.CitaRequest;
 import com.visium.backend.service.CitaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,11 +27,19 @@ public class CitaController {
 
 	private final CitaService citaService;
 
+	@PostMapping
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'JEFE_SUCURSAL', 'RECEPCIONISTA')")
+	public ResponseEntity<CitaResponse> crear(@jakarta.validation.Valid @RequestBody CitaRequest request) {
+		return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(citaService.crear(request));
+	}
+
 	@GetMapping
 	@Operation(summary = "Listar citas visibles", description = "REQUIERE token JWT. Devuelve las citas de las sucursales autorizadas para el usuario.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<CitaResponse>> listar() {
-		return ResponseEntity.ok(citaService.listar());
+	public ResponseEntity<List<CitaResponse>> listar(
+			@RequestParam(required = false) UUID empresaId,
+			@RequestParam(required = false) UUID sucursalId) {
+		return ResponseEntity.ok(citaService.listar(empresaId, sucursalId));
 	}
 
 	@GetMapping("/profesional/{profesionalId}")

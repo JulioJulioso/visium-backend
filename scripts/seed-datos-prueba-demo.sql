@@ -8,6 +8,7 @@ DECLARE
     v_sucursal_id UUID;
     indice INTEGER;
 BEGIN
+    ALTER TABLE pacientes ADD COLUMN IF NOT EXISTS sucursal_id UUID;
     -- "Span" es el nombre solicitado; se admite el nombre histórico "SpA".
     SELECT id INTO v_empresa_id
     FROM empresas
@@ -30,11 +31,11 @@ BEGIN
 
     FOR indice IN 1..30 LOOP
         INSERT INTO pacientes (
-            id, empresa_id, tipo_documento, numero_documento, nombre, apellido,
+            id, empresa_id, sucursal_id, tipo_documento, numero_documento, nombre, apellido,
             fecha_nacimiento, sexo, telefono, email, direccion, activo, created_at, updated_at
         )
         SELECT
-            gen_random_uuid(), v_empresa_id, 'RUN',
+            gen_random_uuid(), v_empresa_id, v_sucursal_id, 'RUN',
             '12.' || lpad(indice::TEXT, 3, '0') || '.123-' || (indice % 10),
             'Paciente', 'Prueba ' || lpad(indice::TEXT, 2, '0'),
             DATE '1980-01-01' + (indice * 173),
@@ -46,6 +47,11 @@ BEGIN
             SELECT 1 FROM pacientes
             WHERE email = 'paciente.prueba.' || lpad(indice::TEXT, 2, '0') || '@visium-demo.cl'
         );
+
+        UPDATE pacientes
+        SET sucursal_id = v_sucursal_id
+        WHERE empresa_id = v_empresa_id
+          AND email = 'paciente.prueba.' || lpad(indice::TEXT, 2, '0') || '@visium-demo.cl';
 
         INSERT INTO profesionales (
             id, empresa_id, sucursal_id, nombre, apellido, email, run, telefono,

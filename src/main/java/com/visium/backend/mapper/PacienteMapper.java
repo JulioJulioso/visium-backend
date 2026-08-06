@@ -22,6 +22,7 @@ public class PacienteMapper {
 				request.getTipoDocumento() != null ? request.getTipoDocumento() : TipoDocumento.RUN
 		);
 		paciente.setNumeroDocumento(request.getNumeroDocumento());
+		paciente.setSucursalId(request.getSucursalId());
 		paciente.setNombre(request.getNombre());
 		paciente.setApellido(request.getApellido());
 		paciente.setFechaNacimiento(request.getFechaNacimiento());
@@ -38,6 +39,7 @@ public class PacienteMapper {
 		return PacienteResponse.builder()
 				.id(paciente.getId())
 				.empresaId(paciente.getEmpresa().getId())
+				.sucursalId(paciente.getSucursalId())
 				.tipoDocumento(paciente.getTipoDocumento())
 				.numeroDocumento(paciente.getNumeroDocumento())
 				.nombre(paciente.getNombre())

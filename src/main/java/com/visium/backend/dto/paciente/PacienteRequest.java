@@ -18,6 +18,8 @@ public class PacienteRequest {
 	@NotNull(message = "La empresa es obligatoria")
 	private UUID empresaId;
 
+	private UUID sucursalId;
+
 	private TipoDocumento tipoDocumento;
 
 	@Size(max = 50)

@@ -15,6 +15,7 @@ public class PacienteResponse {
 
 	private UUID id;
 	private UUID empresaId;
+	private UUID sucursalId;
 	private TipoDocumento tipoDocumento;
 	private String numeroDocumento;
 	private String nombre;

@@ -28,20 +28,39 @@ public class PacienteService {
 
 	@Transactional(readOnly = true)
 	public List<PacienteResponse> listarPorEmpresa(UUID empresaId) {
+		return listarPorEmpresa(empresaId, null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<PacienteResponse> listarPorEmpresa(UUID empresaId, UUID sucursalId) {
 		UUID empresa = accesoService.resolverEmpresaObjetivo(empresaId);
-		return pacienteRepository.findByEmpresaId(empresa).stream()
+		if (sucursalId != null) {
+			accesoService.exigirAccesoSucursal(empresa, sucursalId);
+		}
+		return (sucursalId == null
+				? pacienteRepository.findByEmpresaId(empresa)
+				: pacienteRepository.findByEmpresaIdAndSucursalId(empresa, sucursalId)).stream()
 				.map(pacienteMapper::toResponse)
 				.toList();
 	}
 
 	@Transactional(readOnly = true)
-	public List<PacienteResponse> buscarPorEmpresa(UUID empresaId, String termino) {
+	public List<PacienteResponse> buscarPorEmpresa(UUID empresaId, String termino, UUID sucursalId) {
 		UUID empresa = accesoService.resolverEmpresaObjetivo(empresaId);
 		String busqueda = termino == null ? "" : termino.trim();
-		if (busqueda.isEmpty()) {
-			return listarPorEmpresa(empresa);
-		}
 		String documentoNormalizado = busqueda.replaceAll("[.\\-\\s]", "");
+		if (busqueda.isEmpty()) {
+			return listarPorEmpresa(empresa, sucursalId);
+		}
+		if (sucursalId != null) {
+			accesoService.exigirAccesoSucursal(empresa, sucursalId);
+		}
+		if (sucursalId != null) {
+			return pacienteRepository.buscarPorEmpresa(empresa, busqueda, documentoNormalizado).stream()
+					.filter(paciente -> sucursalId.equals(paciente.getSucursalId()))
+					.map(pacienteMapper::toResponse)
+					.toList();
+		}
 		return pacienteRepository.buscarPorEmpresa(empresa, busqueda, documentoNormalizado).stream()
 				.map(pacienteMapper::toResponse)
 				.toList();
@@ -57,6 +76,7 @@ public class PacienteService {
 	@Transactional
 	public PacienteResponse crear(PacienteRequest request) {
 		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());
+		request.setSucursalId(accesoService.resolverSucursalObjetivo(empresaId, request.getSucursalId()));
 		Empresa empresa = verificarEmpresa(empresaId);
 		Paciente paciente = pacienteMapper.toEntity(request, empresa);
 		if (paciente.getActivo() == null) {
@@ -76,6 +96,7 @@ public class PacienteService {
 		Paciente paciente = buscarOFallar(id);
 		accesoService.exigirAccesoEmpresa(paciente.getEmpresa().getId());
 		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());
+		request.setSucursalId(accesoService.resolverSucursalObjetivo(empresaId, request.getSucursalId()));
 		Empresa empresa = verificarEmpresa(empresaId);
 		paciente.setEmpresa(empresa);
 		pacienteMapper.aplicar(paciente, request);
