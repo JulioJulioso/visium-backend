@@ -5,11 +5,11 @@ spring:
   config:
     import: "optional:file:.env[.properties]"
 
-  # Email con Resend
+  # Email con Brevo
   mail:
     host: smtp-relay.brevo.com
     port: 587
-    username: "b4818f001@smtp-brevo.com" # OJO: El usuario siempre es literalmente la palabra "resend"
+    username: "b4818f001@smtp-brevo.com"
     password: "${BREVO_SMTP_KEY}"
     properties:
       mail:

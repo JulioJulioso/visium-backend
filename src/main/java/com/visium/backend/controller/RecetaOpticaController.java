@@ -5,7 +5,7 @@ import com.visium.backend.exception.ResourceNotFoundException;
 import com.visium.backend.repository.RecetaOpticaRepository;
 import com.visium.backend.service.RecetaOpticaService;
 import com.visium.backend.service.RecetaPdfService;
-import com.visium.backend.service.EmailService; // <-- 1. ESTA LÍNEA FALTABA
+import com.visium.backend.service.EmailService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,7 +28,7 @@ public class RecetaOpticaController {
     private final RecetaOpticaRepository recetaOpticaRepository;
     private final RecetaPdfService pdfService;
     private final RecetaOpticaService recetaOpticaService;
-    private final EmailService emailService; // <-- 2. Y ESTA LÍNEA FALTABA
+    private final EmailService emailService;
 
     @GetMapping("/paciente/{pacienteId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL')")
@@ -75,15 +75,15 @@ public class RecetaOpticaController {
     }
 
     // --------------------------------------------------------
-    // ENDPOINT UNIFICADO: PRUEBA DE PDF + ENVÍO POR CORREO
+    // ENDPOINT UNIFICADO: CREA EL PDF Y LO ENVÍA POR CORREO
     // --------------------------------------------------------
-    @GetMapping("/test-envio-pdf")
+    @GetMapping("/test-unificado")
     @Operation(
-            summary = "Probar generación de PDF y envío por correo",
-            description = "PUBLICO (no requiere token JWT). "
-                    + "Genera una receta falsa en memoria y la envía como PDF adjunto. SOLO para desarrollo.")
-    public ResponseEntity<String> probarEnvioPdfPorCorreo() {
-        // 1. Crear Empresa ficticia
+            summary = "Probar PDF y Email juntos (Clon del Original)",
+            description = "PUBLICO. Genera los datos falsos, crea el PDF y envía el correo con el mismo formato que el original.")
+    public ResponseEntity<String> probarPdfYEmailUnificado() {
+
+        // 1. Generamos los datos ficticios
         com.visium.backend.entity.Empresa empresa = new com.visium.backend.entity.Empresa();
         empresa.setRazonSocial("Óptica Visium Test");
 
@@ -91,14 +91,12 @@ public class RecetaOpticaController {
         sucursal.setNombre("Sucursal Centro");
         sucursal.setEmpresa(empresa);
 
-        // 2. Crear Paciente ficticio
         com.visium.backend.entity.Paciente paciente = new com.visium.backend.entity.Paciente();
         paciente.setNombre("Juan");
         paciente.setApellido("Pérez");
         paciente.setNumeroDocumento("12.345.678-9");
         paciente.setFechaNacimiento(java.time.LocalDate.of(1990, 5, 15));
 
-        // 3. Crear Cita y Consulta ficticias
         com.visium.backend.entity.Cita cita = new com.visium.backend.entity.Cita();
         cita.setSucursal(sucursal);
         cita.setPaciente(paciente);
@@ -107,15 +105,13 @@ public class RecetaOpticaController {
         consulta.setCita(cita);
         consulta.setDiagnostico("Miopía y Astigmatismo");
 
-        // 4. Crear la Receta principal
-        RecetaOptica receta = new RecetaOptica();
+        com.visium.backend.entity.RecetaOptica receta = new com.visium.backend.entity.RecetaOptica();
         receta.setConsulta(consulta);
         receta.setFechaEmision(java.time.LocalDate.now());
         receta.setAdicion(new java.math.BigDecimal("2.50"));
         receta.setDistanciaPupilar(new java.math.BigDecimal("62.5"));
         receta.setObservaciones("Paciente requiere uso de lentes para lectura y pantallas.");
 
-        // 5. Agregar detalles de los ojos
         com.visium.backend.entity.RecetaOpticaDetalle detalleOD = new com.visium.backend.entity.RecetaOpticaDetalle();
         detalleOD.setOjo(com.visium.backend.enums.Ojo.OD);
         detalleOD.setEsfera(new java.math.BigDecimal("-1.25"));
@@ -130,15 +126,22 @@ public class RecetaOpticaController {
         detalleOI.setEje((short) 85);
         receta.agregarDetalle(detalleOI);
 
-        // 6. Generar los bytes del PDF
+        // 2. Generamos los bytes del PDF usando tu servicio
         byte[] pdfBytes = pdfService.generarPdf(receta);
 
-        // 7. Enviar el PDF por correo a tu bandeja (AQUÍ PON TU CORREO AUTORIZADO EN BREVO)
-        String tuCorreoDestino = "cfrtzsepulveda8@gmail.com";
+        // 3. Define aquí el correo donde quieres recibir la prueba
+        String correoDestino = "estayjose3@gmail.com";
 
-        // ¡OJO! Esto requiere que hayas creado el método enviarCorreoPruebaConPdf en EmailService.java
-        emailService.enviarCorreoPruebaConPdf(tuCorreoDestino, pdfBytes, empresa.getRazonSocial());
+        // 4. Llamamos al servicio clon original, pasándole las variables dinámicas
+        emailService.enviarCorreoPruebaConPdf(
+                correoDestino,
+                pdfBytes,
+                paciente.getNombre(),
+                sucursal.getNombre(),
+                empresa.getRazonSocial()
+        );
 
-        return ResponseEntity.ok("Prueba unificada finalizada. Revisa la bandeja de entrada de " + tuCorreoDestino);
+        // 5. Retornamos la respuesta a Bruno/Navegador
+        return ResponseEntity.ok("Proceso unificado exitoso. El PDF se generó y se envió a " + correoDestino + " simulando el entorno original.");
     }
 }
