@@ -70,6 +70,9 @@ public class ProfesionalService {
 
 	@Transactional
 	public ProfesionalResponse registrar(ProfesionalRequest request) {
+		if (request.getPassword() == null || request.getPassword().isBlank()) {
+			throw new BadRequestException("La contrasena es obligatoria");
+		}
 		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());
 		if (!accesoService.esSuperAdmin() && !accesoService.esJefeDeEmpresa()) {
 			throw new ForbiddenException("Solo JEFE o SUPER_ADMIN pueden registrar profesionales");
@@ -148,6 +151,43 @@ public class ProfesionalService {
 				.activo(profesional.getActivo())
 				.sucursalIds(sucursalIds)
 				.build();
+	}
+
+	@Transactional
+	public ProfesionalResponse editar(UUID id, ProfesionalRequest request) {
+		Profesional profesional = profesionalRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado: " + id));
+		ProfesionalResponse actual = toResponse(profesional);
+		if (!esVisible(actual)) throw new ForbiddenException("No tienes acceso a ese profesional");
+		UUID empresaId = accesoService.resolverEmpresaObjetivo(request.getEmpresaId());
+		if (!empresaId.equals(actual.getEmpresaId())) throw new BadRequestException("La empresa no puede cambiarse");
+		com.visium.backend.dto.usuario.UsuarioRequest usuario = new com.visium.backend.dto.usuario.UsuarioRequest();
+		usuario.setEmpresaId(empresaId); usuario.setNombre(request.getNombre()); usuario.setApellido(request.getApellido());
+		usuario.setEmail(request.getEmail()); usuario.setPassword(request.getPassword()); usuario.setRun(request.getRun());
+		usuario.setTelefono(request.getTelefono()); usuario.setRol("PROFESIONAL"); usuario.setSucursalIds(request.getSucursalIds());
+		usuarioRepository.findByEmailIgnoreCase(request.getEmail()).filter(u -> !u.getId().equals(profesional.getUsuario().getId()))
+				.ifPresent(u -> { throw new BadRequestException("Ya existe un usuario con el email " + request.getEmail()); });
+		profesionalRepository.findByNumeroRegistro(request.getNumeroRegistro()).filter(p -> !p.getId().equals(id))
+				.ifPresent(p -> { throw new BadRequestException("Ya existe un profesional con el registro " + request.getNumeroRegistro()); });
+		Usuario user = profesional.getUsuario(); user.setNombre(request.getNombre()); user.setApellido(request.getApellido()); user.setEmail(request.getEmail()); user.setRun(request.getRun()); user.setTelefono(request.getTelefono());
+		if (request.getPassword() != null && !request.getPassword().isBlank()) user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+		usuarioRepository.save(user); profesional.setNumeroRegistro(request.getNumeroRegistro()); profesional.setEspecialidad(request.getEspecialidad()); profesionalRepository.save(profesional);
+		UsuarioEmpresa pertenencia = usuarioEmpresaRepository.findByUsuarioId(user.getId()).stream().filter(p -> p.getEmpresa().getId().equals(empresaId)).findFirst().orElseThrow();
+		usuarioSucursalRepository.deleteByUsuarioEmpresaId(pertenencia.getId()); asignarSucursales(empresaId, pertenencia, request.getSucursalIds());
+		return toResponse(profesional);
+	}
+
+	@Transactional
+	public void cambiarEstado(UUID id, boolean activo) {
+		Profesional profesional = profesionalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado: " + id));
+		if (!esVisible(toResponse(profesional))) throw new ForbiddenException("No tienes acceso a ese profesional");
+		profesional.setActivo(activo); profesionalRepository.save(profesional); profesional.getUsuario().setActivo(activo); usuarioRepository.save(profesional.getUsuario());
+	}
+
+	private void asignarSucursales(UUID empresaId, UsuarioEmpresa pertenencia, List<UUID> ids) {
+		for (UUID id : ids) { Sucursal sucursal = sucursalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada: " + id));
+			if (!sucursal.getEmpresa().getId().equals(empresaId)) throw new BadRequestException("La sucursal no pertenece a la empresa");
+			accesoService.exigirAccesoSucursal(empresaId, id); UsuarioSucursal link = new UsuarioSucursal(); link.setUsuarioEmpresaId(pertenencia.getId()); link.setSucursalId(id); link.setEmpresaId(empresaId); usuarioSucursalRepository.save(link); }
 	}
 
 	private boolean esVisible(ProfesionalResponse response) {

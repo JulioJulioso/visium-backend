@@ -33,6 +33,7 @@ public class EmpresaController {
 	private final EmpresaService empresaService;
 
 	@GetMapping("/")
+	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
 	@Operation(
 			summary = "Listar empresas",
 			description = "REQUIERE token JWT (cualquier rol autenticado). "
@@ -43,6 +44,7 @@ public class EmpresaController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
 	@Operation(
 			summary = "Obtener empresa por id",
 			description = "REQUIERE token JWT (cualquier rol autenticado). "
@@ -53,7 +55,7 @@ public class EmpresaController {
 	}
 
 	@PostMapping
-	@PreAuthorize("hasRole('SUPER_ADMIN')")
+	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
 	@Operation(
 			summary = "Crear empresa",
 			description = "REQUIERE token JWT. Rol: SUPER_ADMIN. "
@@ -64,7 +66,7 @@ public class EmpresaController {
 	}
 
 	@PutMapping("/{id}")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
 	@Operation(
 			summary = "Actualizar empresa",
 			description = "REQUIERE token JWT. Roles: SUPER_ADMIN o JEFE. "
@@ -76,7 +78,7 @@ public class EmpresaController {
 	}
 
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasRole('SUPER_ADMIN')")
+	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
 	@Operation(
 			summary = "Desactivar empresa",
 			description = "REQUIERE token JWT. Rol: SUPER_ADMIN. "

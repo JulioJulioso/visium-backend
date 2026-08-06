@@ -24,6 +24,13 @@ public class CitaController {
 
 	private final CitaService citaService;
 
+	@GetMapping
+	@Operation(summary = "Listar citas visibles", description = "REQUIERE token JWT. Devuelve las citas de las sucursales autorizadas para el usuario.")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<List<CitaResponse>> listar() {
+		return ResponseEntity.ok(citaService.listar());
+	}
+
 	@GetMapping("/profesional/{profesionalId}")
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL')")
 	@Operation(

@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,4 +64,9 @@ public class ProfesionalController {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(profesionalService.registrar(request));
 	}
+
+	@PutMapping("/{id}") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	public ResponseEntity<ProfesionalResponse> editar(@PathVariable UUID id, @Valid @RequestBody ProfesionalRequest request) { return ResponseEntity.ok(profesionalService.editar(id, request)); }
+	@PatchMapping("/{id}/estado") @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE')")
+	public ResponseEntity<Void> cambiarEstado(@PathVariable UUID id, @RequestBody com.visium.backend.dto.usuario.CambiarEstadoRequest request) { profesionalService.cambiarEstado(id, Boolean.TRUE.equals(request.getActivo())); return ResponseEntity.noContent().build(); }
 }

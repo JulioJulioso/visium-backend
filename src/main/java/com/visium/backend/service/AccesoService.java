@@ -34,6 +34,11 @@ public class AccesoService {
 		return usuarioActual().getRoles().contains("JEFE");
 	}
 
+	/** Catálogo de empresas: plataforma o jefe que administra más de una empresa. */
+	public boolean puedeGestionarCatalogoEmpresas() {
+		return esSuperAdmin() || (esJefeDeEmpresa() && usuarioActual().getEmpresaIds().size() > 1);
+	}
+
 	/**
 	 * Roles que solo ven sucursales asignadas (no toda la óptica).
 	 */

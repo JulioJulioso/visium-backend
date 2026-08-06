@@ -14,4 +14,6 @@ public interface UsuarioEmpresaRolRepository extends JpaRepository<UsuarioEmpres
 	List<UsuarioEmpresaRol> findByUsuarioEmpresaId(UUID usuarioEmpresaId);
 
 	void deleteByUsuarioEmpresaId(UUID usuarioEmpresaId);
+
+	boolean existsByRolId(Short rolId);
 }

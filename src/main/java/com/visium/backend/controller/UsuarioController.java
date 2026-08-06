@@ -1,6 +1,7 @@
 package com.visium.backend.controller;
 
 import com.visium.backend.dto.usuario.CambiarEstadoRequest;
+import com.visium.backend.dto.usuario.CambiarPasswordUsuarioRequest;
 import com.visium.backend.dto.usuario.UsuarioRequest;
 import com.visium.backend.dto.usuario.UsuarioResponse;
 import com.visium.backend.service.UsuarioService;
@@ -92,5 +93,11 @@ public class UsuarioController {
 			@PathVariable UUID id, @Valid @RequestBody CambiarEstadoRequest request) {
 		usuarioService.cambiarEstado(id, Boolean.TRUE.equals(request.getActivo()));
 		return ResponseEntity.noContent().build();
+	}
+
+	@PatchMapping("/{id}/password")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'ADMINISTRADOR_SUCURSALES', 'JEFE_SUCURSAL')")
+	public ResponseEntity<Void> cambiarPassword(@PathVariable UUID id, @Valid @RequestBody CambiarPasswordUsuarioRequest request) {
+		usuarioService.cambiarPassword(id, request.getNuevaPassword()); return ResponseEntity.noContent().build();
 	}
 }

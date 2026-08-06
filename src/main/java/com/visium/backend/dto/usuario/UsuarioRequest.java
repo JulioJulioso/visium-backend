@@ -43,7 +43,7 @@ public class UsuarioRequest {
 	@Size(max = 30)
 	private String telefono;
 
-	/** Codigo del rol a asignar (SUPER_ADMIN, JEFE, JEFE_SUCURSAL, RECEPCIONISTA, PROFESIONAL). */
+	/** Codigo del rol a asignar (SUPER_ADMIN, JEFE, ADMINISTRADOR_SUCURSALES, JEFE_SUCURSAL, RECEPCIONISTA, PROFESIONAL). */
 	@Size(max = 50)
 	private String rol;
 

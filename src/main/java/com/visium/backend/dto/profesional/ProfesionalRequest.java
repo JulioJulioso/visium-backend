@@ -34,7 +34,6 @@ public class ProfesionalRequest {
 	@Size(max = 254)
 	private String email;
 
-	@NotBlank(message = "La contrasena es obligatoria")
 	@Size(min = 6, message = "La contrasena debe tener al menos 6 caracteres")
 	private String password;
 

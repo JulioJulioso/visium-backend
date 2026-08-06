@@ -42,7 +42,7 @@ public class UsuarioService {
 
 	/** Rolcs que soporta el selector del portal. */
 	static final Set<String> ROLES_PERMITIDOS =
-			Set.of("SUPER_ADMIN", "JEFE", "JEFE_SUCURSAL", "RECEPCIONISTA", "PROFESIONAL");
+			Set.of("SUPER_ADMIN", "JEFE", "ADMINISTRADOR_SUCURSALES", "JEFE_SUCURSAL", "RECEPCIONISTA", "PROFESIONAL");
 
 	private final UsuarioRepository usuarioRepository;
 	private final EmpresaRepository empresaRepository;
@@ -194,6 +194,14 @@ public class UsuarioService {
 
 		usuario.setActivo(activo);
 		usuarioRepository.save(usuario);
+	}
+
+	@Transactional
+	public void cambiarPassword(UUID usuarioId, String nuevaPassword) {
+		Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + usuarioId));
+		boolean visible = usuarioEmpresaRepository.findByUsuarioId(usuarioId).stream().anyMatch(p -> accesoService.puedeAccederEmpresa(p.getEmpresa().getId()));
+		if (!visible) throw new ForbiddenException("No tienes acceso a ese usuario");
+		usuario.setPasswordHash(passwordEncoder.encode(nuevaPassword)); usuarioRepository.save(usuario);
 	}
 
 	private void validarRolAsignable(String rol) {

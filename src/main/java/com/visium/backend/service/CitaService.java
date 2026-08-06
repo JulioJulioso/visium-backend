@@ -32,6 +32,15 @@ public class CitaService {
 	private final CitaMapper citaMapper;
 	private final AccesoService accesoService;
 
+	/** Lista las citas visibles en las sucursales autorizadas del usuario. */
+	@Transactional(readOnly = true)
+	public List<CitaResponse> listar() {
+		return citaRepository.findAll().stream()
+				.filter(this::tieneAccesoACita)
+				.map(citaMapper::toResponse)
+				.toList();
+	}
+
 	@Transactional(readOnly = true)
 	public List<CitaResponse> listarCitasConfirmadasPorProfesional(
 			UUID profesionalId, LocalDate desde, LocalDate hasta) {
