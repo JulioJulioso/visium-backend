@@ -35,6 +35,19 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<PacienteResponse> buscarPorEmpresa(UUID empresaId, String termino) {
+		UUID empresa = accesoService.resolverEmpresaObjetivo(empresaId);
+		String busqueda = termino == null ? "" : termino.trim();
+		if (busqueda.isEmpty()) {
+			return listarPorEmpresa(empresa);
+		}
+		String documentoNormalizado = busqueda.replaceAll("[.\\-\\s]", "");
+		return pacienteRepository.buscarPorEmpresa(empresa, busqueda, documentoNormalizado).stream()
+				.map(pacienteMapper::toResponse)
+				.toList();
+	}
+
+	@Transactional(readOnly = true)
 	public PacienteResponse obtenerPorId(UUID id) {
 		Paciente paciente = buscarOFallar(id);
 		accesoService.exigirAccesoEmpresa(paciente.getEmpresa().getId());

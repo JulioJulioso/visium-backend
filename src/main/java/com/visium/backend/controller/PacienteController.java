@@ -40,8 +40,10 @@ public class PacienteController {
 					+ "Devuelve los pacientes de la empresa indicada. "
 					+ "Si el usuario tiene varias empresas, enviar la cabecera X-Empresa-Id.")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<List<PacienteResponse>> listar(@RequestParam UUID empresaId) {
-		return ResponseEntity.ok(pacienteService.listarPorEmpresa(empresaId));
+	public ResponseEntity<List<PacienteResponse>> listar(
+			@RequestParam UUID empresaId,
+			@RequestParam(required = false) String busqueda) {
+		return ResponseEntity.ok(pacienteService.buscarPorEmpresa(empresaId, busqueda));
 	}
 
 	@GetMapping("/{id}")
