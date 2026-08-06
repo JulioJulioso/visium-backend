@@ -11,6 +11,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.visium.backend.entity.RecetaOptica;
 import com.visium.backend.entity.RecetaOpticaDetalle;
+import com.visium.backend.entity.Paciente;
+import com.visium.backend.entity.Sucursal;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
@@ -30,6 +32,8 @@ public class RecetaPdfService {
         try {
             PdfWriter.getInstance(document, out);
             document.open();
+            Paciente paciente = receta.getPaciente() != null ? receta.getPaciente() : receta.getConsulta().getCita().getPaciente();
+            Sucursal sucursal = receta.getSucursal() != null ? receta.getSucursal() : receta.getConsulta().getCita().getSucursal();
 
             // ==========================================
             // CONFIGURACIÓN DE ESTILOS (Colores y Fuentes)
@@ -55,7 +59,7 @@ public class RecetaPdfService {
             headerTable.addCell(cellFecha);
 
             // Celda Título
-            String nombreEmpresa = receta.getConsulta().getCita().getSucursal().getEmpresa().getRazonSocial();
+            String nombreEmpresa = sucursal.getEmpresa().getRazonSocial();
             PdfPCell cellTitulo = new PdfPCell(new Phrase("RECETA ÓPTICA - " + nombreEmpresa.toUpperCase(), fontTitulo));
             cellTitulo.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cellTitulo.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -73,8 +77,7 @@ public class RecetaPdfService {
             pacienteTable.setWidths(new float[]{1f, 1f});
 
             // Nombre
-            String nombrePaciente = receta.getConsulta().getCita().getPaciente().getNombre() + " " +
-                    receta.getConsulta().getCita().getPaciente().getApellido();
+            String nombrePaciente = paciente.getNombre() + " " + paciente.getApellido();
             PdfPCell cellNombre = new PdfPCell(new Phrase("Paciente: " + nombrePaciente, fontNegrita));
             cellNombre.setColspan(2); // Ocupa todo el ancho
             cellNombre.setBackgroundColor(colorFondoAzul);
@@ -91,7 +94,7 @@ public class RecetaPdfService {
 
             // Edad[cite: 2]
             String edadStr = "";
-            LocalDate fn = receta.getConsulta().getCita().getPaciente().getFechaNacimiento();
+            LocalDate fn = paciente.getFechaNacimiento();
             if (fn != null) {
                 edadStr = String.valueOf(Period.between(fn, LocalDate.now()).getYears());
             }
@@ -102,7 +105,7 @@ public class RecetaPdfService {
             pacienteTable.addCell(cellEdad);
 
             // Rut[cite: 2]
-            String rut = receta.getConsulta().getCita().getPaciente().getNumeroDocumento();
+            String rut = paciente.getNumeroDocumento();
             PdfPCell cellRut = new PdfPCell(new Phrase("Rut: " + (rut != null ? rut : ""), fontNegrita));
             cellRut.setBackgroundColor(colorFondoAzul);
             cellRut.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
@@ -115,7 +118,7 @@ public class RecetaPdfService {
             // ==========================================
             // 3. DIAGNÓSTICO
             // ==========================================
-            String diag = receta.getConsulta().getDiagnostico();
+            String diag = receta.getConsulta() == null ? "" : receta.getConsulta().getDiagnostico();
             document.add(new Paragraph("Diagnóstico: " + (diag != null ? diag : ""), fontNegrita));
             document.add(new Paragraph("\n"));
 

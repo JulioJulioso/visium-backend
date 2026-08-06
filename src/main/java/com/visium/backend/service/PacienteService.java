@@ -39,7 +39,7 @@ public class PacienteService {
 		}
 		return (sucursalId == null
 				? pacienteRepository.findByEmpresaId(empresa)
-				: pacienteRepository.findByEmpresaIdAndSucursalId(empresa, sucursalId)).stream()
+				: pacienteRepository.findVisiblesPorEmpresaYSucursal(empresa, sucursalId)).stream()
 				.map(pacienteMapper::toResponse)
 				.toList();
 	}
@@ -57,7 +57,7 @@ public class PacienteService {
 		}
 		if (sucursalId != null) {
 			return pacienteRepository.buscarPorEmpresa(empresa, busqueda, documentoNormalizado).stream()
-					.filter(paciente -> sucursalId.equals(paciente.getSucursalId()))
+					.filter(paciente -> paciente.getSucursalId() == null || sucursalId.equals(paciente.getSucursalId()))
 					.map(pacienteMapper::toResponse)
 					.toList();
 		}

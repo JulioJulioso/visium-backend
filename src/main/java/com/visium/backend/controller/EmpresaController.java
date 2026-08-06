@@ -33,7 +33,7 @@ public class EmpresaController {
 	private final EmpresaService empresaService;
 
 	@GetMapping("/")
-	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(
 			summary = "Listar empresas",
 			description = "REQUIERE token JWT (cualquier rol autenticado). "
@@ -44,7 +44,7 @@ public class EmpresaController {
 	}
 
 	@GetMapping("/{id}")
-	@PreAuthorize("@accesoService.puedeGestionarCatalogoEmpresas()")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(
 			summary = "Obtener empresa por id",
 			description = "REQUIERE token JWT (cualquier rol autenticado). "

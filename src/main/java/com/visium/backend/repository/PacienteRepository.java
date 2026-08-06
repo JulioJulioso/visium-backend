@@ -17,6 +17,10 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
 	List<Paciente> findByEmpresaIdAndSucursalId(UUID empresaId, UUID sucursalId);
 
+	@Query("SELECT paciente FROM Paciente paciente WHERE paciente.empresa.id = :empresaId AND (paciente.sucursalId = :sucursalId OR paciente.sucursalId IS NULL)")
+	List<Paciente> findVisiblesPorEmpresaYSucursal(
+			@Param("empresaId") UUID empresaId, @Param("sucursalId") UUID sucursalId);
+
 	@Query("""
 			SELECT paciente FROM Paciente paciente
 			WHERE paciente.empresa.id = :empresaId

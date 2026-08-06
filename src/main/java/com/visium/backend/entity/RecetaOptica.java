@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -38,9 +39,17 @@ public class RecetaOptica {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @OneToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "consulta_id", nullable = false, unique = true)
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "consulta_id", unique = true)
   private Consulta consulta;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "paciente_id", nullable = false)
+  private Paciente paciente;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "sucursal_id", nullable = false)
+  private Sucursal sucursal;
 
   @Column(name = "fecha_emision", nullable = false)
   private LocalDate fechaEmision;

@@ -1,6 +1,8 @@
 package com.visium.backend.controller;
 
 import com.visium.backend.entity.RecetaOptica;
+import com.visium.backend.dto.receta.RecetaOpticaRequest;
+import com.visium.backend.dto.receta.RecetaHistorialResponse;
 import com.visium.backend.exception.ResourceNotFoundException;
 import com.visium.backend.repository.RecetaOpticaRepository;
 import com.visium.backend.service.RecetaOpticaService;
@@ -31,15 +33,14 @@ public class RecetaOpticaController {
     private final EmailService emailService; // <-- 2. Y ESTA LÍNEA FALTABA
 
     @GetMapping("/paciente/{pacienteId}")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL', 'RECEPCIONISTA')")
     @Operation(
             summary = "Historial de recetas de un paciente",
-            description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE o PROFESIONAL. "
+            description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE, PROFESIONAL o RECEPCIONISTA. "
                     + "Devuelve las recetas opticas del paciente.")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<RecetaOptica>> historialPorPaciente(@PathVariable UUID pacienteId) {
-        List<RecetaOptica> historial = recetaOpticaRepository.findHistorialByPacienteId(pacienteId);
-        return ResponseEntity.ok(historial);
+    public ResponseEntity<List<RecetaHistorialResponse>> historialPorPaciente(@PathVariable UUID pacienteId) {
+        return ResponseEntity.ok(recetaOpticaService.listarHistorial(pacienteId));
     }
 
     @GetMapping("/{id}/pdf")
@@ -63,15 +64,22 @@ public class RecetaOpticaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL', 'RECEPCIONISTA')")
     @Operation(
             summary = "Crear receta optica",
-            description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE o PROFESIONAL. "
+            description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE, PROFESIONAL o RECEPCIONISTA. "
                     + "Registra una nueva receta optica.")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<RecetaOptica> crearReceta(@RequestBody RecetaOptica receta) {
-        RecetaOptica nuevaReceta = recetaOpticaService.guardarReceta(receta);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReceta);
+    public ResponseEntity<Void> crearReceta(@jakarta.validation.Valid @RequestBody RecetaOpticaRequest request) {
+        recetaOpticaService.guardarReceta(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/{id}/enviar-email")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'PROFESIONAL', 'RECEPCIONISTA')")
+    public ResponseEntity<Void> enviarPorCorreo(@PathVariable UUID id) {
+        recetaOpticaService.reenviarReceta(id);
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/test-email")

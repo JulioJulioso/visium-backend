@@ -27,6 +27,8 @@ import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class CitaService {
 	private final UsuarioEmpresaRepository usuarioEmpresaRepository;
 	private final CitaMapper citaMapper;
 	private final AccesoService accesoService;
+	private final EmailService emailService;
 
 	@Transactional
 	public CitaResponse crear(CitaRequest request) {
@@ -63,7 +66,11 @@ public class CitaService {
 		cita.setEmpresaId(empresaId); cita.setSucursal(sucursal); cita.setPaciente(paciente); cita.setProfesional(profesional); cita.setCreadaPor(creador);
 		cita.setFechaHoraInicio(request.getFechaHoraInicio()); cita.setFechaHoraFin(request.getFechaHoraFin());
 		cita.setEstado(request.getEstado() == null ? EstadoCita.PENDIENTE : request.getEstado()); cita.setMotivo(request.getMotivo()); cita.setObservaciones(request.getObservaciones());
-		return citaMapper.toResponse(citaRepository.save(cita));
+		Cita citaGuardada = citaRepository.save(cita);
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override public void afterCommit() { emailService.enviarConfirmacionCita(citaGuardada.getId()); }
+		});
+		return citaMapper.toResponse(citaGuardada);
 	}
 
 	/** Lista las citas visibles en las sucursales autorizadas del usuario. */

@@ -16,6 +16,6 @@ public interface RecetaOpticaRepository extends JpaRepository<RecetaOptica, UUID
 
 	Optional<RecetaOptica> findByConsultaId(UUID consultaId);
 
-	@Query("SELECT r FROM RecetaOptica r WHERE r.consulta.cita.paciente.id = :pacienteId ORDER BY r.createdAt DESC")
+	@Query("SELECT r FROM RecetaOptica r LEFT JOIN r.consulta consulta LEFT JOIN consulta.cita cita WHERE r.paciente.id = :pacienteId OR cita.paciente.id = :pacienteId ORDER BY r.createdAt DESC")
     List<RecetaOptica> findHistorialByPacienteId(@Param("pacienteId")UUID pacienteId);
 }
