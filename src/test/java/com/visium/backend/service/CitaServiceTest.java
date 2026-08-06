@@ -178,7 +178,7 @@ class CitaServiceTest {
 		when(accesoService.resolverEmpresaObjetivo(null)).thenReturn(EMPRESA_ID);
 		when(accesoService.sucursalIdsVisiblesEnEmpresa()).thenReturn(List.of());
 		when(citaRepository.listarEnRango(
-				eq(EMPRESA_ID), eq(List.of()), eq(EstadoCita.CONFIRMADA),
+				eq(EMPRESA_ID), isNull(), eq(EstadoCita.CONFIRMADA),
 				any(Instant.class), any(Instant.class)))
 				.thenReturn(List.of(cita()));
 		when(citaMapper.toResponse(any(Cita.class))).thenReturn(citaResponse());
@@ -203,7 +203,7 @@ class CitaServiceTest {
 
 		assertEquals(1, citas.size());
 		verify(citaRepository).listarEnRango(
-				eq(EMPRESA_ID), eq(List.of()), isNull(), any(Instant.class), any(Instant.class));
+				eq(EMPRESA_ID), isNull(), isNull(), any(Instant.class), any(Instant.class));
 	}
 
 	@Test

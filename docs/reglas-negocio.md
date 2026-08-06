@@ -87,6 +87,7 @@ Antes de crear una cita se debe validar que:
 - Una consulta solamente debe iniciarse para una cita confirmada.
 - Al finalizar una consulta, la cita debe cambiar a `ATENDIDA`.
 - Solo `RECEPCIONISTA` puede ejecutar el cierre operativo de la cita, pero no leer historial clínico ni gestionar recetas.
+- El cierre de cita también está permitido para `SUPER_ADMIN`, `JEFE` y `PROFESIONAL` (la matriz lo limita al cierre operativo; el `JEFE` mantiene solo lectura de historial clínico y recetas).
 
 ## Recetas ópticas
 

@@ -8,13 +8,20 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
-- CRUD de citas: `POST /citas`, `PUT /citas/{id}` y `DELETE /citas/{id}` (roles operativos; la agenda existente de lectura se mantiene)
-- `CitaRequest`: DTO de entrada con validación `@NotNull` + `@Valid` en el controller
-- `GET /citas`: listado general de citas de la empresa activa (`X-Empresa-Id`), con filtros opcionales por `estado` y rango `desde`/`hasta`; restringido a las sucursales autorizadas del usuario (todos los roles)
-- `PUT /auth/me/password`: cambio de contraseña del usuario autenticado (valida la contraseña actual; mínimo 8 caracteres)
+- Profesionales sin usuario: ahora todos los profesionales del seed pueden aparecer en `GET /profesionales` (38 profesionales con usuario asociado en BD)
+- `POST /consultas/cerrar-cita` ahora permitido para `SUPER_ADMIN`, `JEFE` y `PROFESIONAL` (antes solo `RECEPCIONISTA`), según ajuste de regla de negocio
+- `POST /recetas`: acepta `RecetaRequest` (DTO con `consulta` como UUID) en vez de la entidad; valida que la consulta exista y no tenga receta previa (400); responde `RecetaResponse` (201)
+- `GET /recetas/paciente/{id}`: devuelve historial como `RecetaResponse` (DTO plano, sin entidades)
 
 ### Corregido
-- Aislamiento multi-empresa al crear/modificar citas: sucursal, paciente y profesional deben pertenecer a la empresa de la cita
+- `RecetaOpticaRepository`: queries con `JOIN FETCH` (consulta, cita, paciente, sucursal, empresa, profesional, detalles) para evitar `LazyInitializationException` al serializar historial y generar el PDF (`open-in-view: false`)
+- `GET /recetas/{id}/pdf`: arreglado el 500 "Error al generar el PDF" por acceso a `sucursal.empresa` (LAZY) fuera de transacción
+- `CitaService`: validaciones contra profesionales sin usuario lanzan 400/403 con mensaje claro en vez de NPE (500)
+- `ConsultaService.cerrarCita`: `fechaInicio` y `fechaFin` se fijan con el mismo instante para no violar `ck_consultas_fechas` (antes `fecha_fin` podía quedar antes que `fecha_inicio` por la carrera entre `@PrePersist` y el servicio, generando 500)
+- `Consulta.alCrear`: guard defensivo que corrige `fechaFin < fechaInicio` si vuelve a ocurrir una desincronización de reloj
+- `CitaService.listarCitas`: cuando el rol ve todas las sucursales (lista vacía) se pasa `null` al filtro de la query (antes una lista vacía generaba `IN ()` y devolvía cero citas en `GET /citas`)
+
+### Aislamiento multi-empresa al crear/modificar citas
 - `modificarCita` valida acceso a la empresa nueva al cambiar `empresaId` (antes solo validaba la empresa original)
 - Regla `fin > inicio` en crear y modificar citas
 - Máquina de estados: `PENDIENTE → CONFIRMADA/CANCELADA`, `CONFIRMADA → PENDIENTE/CANCELADA`, `CANCELADA → PENDIENTE`; `ATENDIDA` y `NO_ASISTIO` son terminales (no modificables)

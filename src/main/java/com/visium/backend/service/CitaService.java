@@ -67,7 +67,12 @@ public class CitaService {
 		Instant inicio = inicioReal.atStartOfDay().toInstant(ZoneOffset.UTC);
 		Instant fin = finReal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
-		return citaRepository.listarEnRango(empresaId, sucursalesVisibles, estado, inicio, fin)
+		return citaRepository.listarEnRango(
+						empresaId,
+						sucursalesVisibles.isEmpty() ? null : sucursalesVisibles,
+						estado,
+						inicio,
+						fin)
 				.stream()
 				.filter(this::tieneAccesoACita)
 				.map(citaMapper::toResponse)
@@ -275,6 +280,9 @@ public class CitaService {
 	}
 
 	private void validarProfesionalDeEmpresa(Profesional profesional, UUID empresaId) {
+		if (profesional.getUsuario() == null) {
+			throw new BadRequestException("El profesional no tiene un usuario asociado");
+		}
 		List<UsuarioEmpresa> pertenencias = usuarioEmpresaRepository.findByUsuarioId(profesional.getUsuario().getId());
 		boolean pertenece = pertenencias.stream()
 				.anyMatch(ue -> ue.getEmpresa().getId().equals(empresaId));
@@ -306,6 +314,9 @@ public class CitaService {
 	private void validarEmpresaDeProfesional(Profesional profesional, UsuarioDetails usuario) {
 		if (accesoService.esSuperAdmin()) {
 			return;
+		}
+		if (profesional.getUsuario() == null) {
+			throw new ForbiddenException("El profesional no tiene un usuario asociado");
 		}
 		List<UsuarioEmpresa> pertenencias = usuarioEmpresaRepository.findByUsuarioId(profesional.getUsuario().getId());
 		if (pertenencias.isEmpty()) {

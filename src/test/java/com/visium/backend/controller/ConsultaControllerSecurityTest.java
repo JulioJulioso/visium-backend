@@ -46,23 +46,23 @@ class ConsultaControllerSecurityTest {
 
   @Test
   @WithMockUser(roles = "PROFESIONAL")
-  void profesionalNoPuedeCerrarCita() {
-    assertThrows(AccessDeniedException.class, () -> consultaController.cerrarCita(request()));
-    verifyNoInteractions(consultaService);
+  void profesionalPuedeCerrarCita() {
+    assertDoesNotThrow(() -> consultaController.cerrarCita(request()));
+    verify(consultaService).cerrarCita(any());
   }
 
   @Test
   @WithMockUser(roles = "JEFE")
-  void jefeNoPuedeCerrarCita() {
-    assertThrows(AccessDeniedException.class, () -> consultaController.cerrarCita(request()));
-    verifyNoInteractions(consultaService);
+  void jefePuedeCerrarCita() {
+    assertDoesNotThrow(() -> consultaController.cerrarCita(request()));
+    verify(consultaService).cerrarCita(any());
   }
 
   @Test
   @WithMockUser(roles = "SUPER_ADMIN")
-  void superAdminNoPuedeCerrarCita() {
-    assertThrows(AccessDeniedException.class, () -> consultaController.cerrarCita(request()));
-    verifyNoInteractions(consultaService);
+  void superAdminPuedeCerrarCita() {
+    assertDoesNotThrow(() -> consultaController.cerrarCita(request()));
+    verify(consultaService).cerrarCita(any());
   }
 
   @Test

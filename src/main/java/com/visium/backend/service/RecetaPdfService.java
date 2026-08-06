@@ -234,7 +234,7 @@ public class RecetaPdfService {
 
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException("Error al generar el PDF de la receta", e);
+            throw new RuntimeException("Error al generar el PDF de la receta: " + e.getMessage(), e);
         }
 
         return out.toByteArray();

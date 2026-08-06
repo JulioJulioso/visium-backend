@@ -30,10 +30,10 @@ public class ConsultaController {
   //           2. filtrar por semana
   // TODO: Profesional queda raro. Hay que ver como se llena la consulta
   @PostMapping("/cerrar-cita")
-  @PreAuthorize("hasRole('RECEPCIONISTA')")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'JEFE', 'RECEPCIONISTA', 'PROFESIONAL')")
   @Operation(
       summary = "Cerrar una cita confirmada y crear la consulta",
-      description = "REQUIERE token JWT. Rol: RECEPCIONISTA. "
+      description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE, RECEPCIONISTA o PROFESIONAL. "
           + "Convierte una cita CONFIRMADA en ATENDIDA y genera la consulta asociada.")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<ConsultaResponse> cerrarCita(

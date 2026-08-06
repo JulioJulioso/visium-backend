@@ -46,7 +46,9 @@ public class ConsultaService {
             });
 
     Consulta consulta = consultaMapper.toEntity(request, cita);
-    consulta.setFechaFin(Instant.now());
+    Instant ahora = Instant.now();
+    consulta.setFechaInicio(ahora);
+    consulta.setFechaFin(ahora);
     cita.setEstado(EstadoCita.ATENDIDA);
 
     consulta = consultaRepository.save(consulta);

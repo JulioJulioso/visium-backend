@@ -71,6 +71,9 @@ public class Consulta {
     if (fechaInicio == null) {
       fechaInicio = ahora;
     }
+    if (fechaFin != null && fechaFin.isBefore(fechaInicio)) {
+      fechaFin = fechaInicio;
+    }
     createdAt = ahora;
     updatedAt = ahora;
   }

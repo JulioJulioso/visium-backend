@@ -1,5 +1,7 @@
 package com.visium.backend.controller;
 
+import com.visium.backend.dto.receta.RecetaRequest;
+import com.visium.backend.dto.receta.RecetaResponse;
 import com.visium.backend.entity.RecetaOptica;
 import com.visium.backend.exception.ResourceNotFoundException;
 import com.visium.backend.repository.RecetaOpticaRepository;
@@ -9,6 +11,7 @@ import com.visium.backend.service.EmailService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,8 +40,8 @@ public class RecetaOpticaController {
             description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE o PROFESIONAL. "
                     + "Devuelve las recetas opticas del paciente.")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<RecetaOptica>> historialPorPaciente(@PathVariable UUID pacienteId) {
-        List<RecetaOptica> historial = recetaOpticaRepository.findHistorialByPacienteId(pacienteId);
+    public ResponseEntity<List<RecetaResponse>> historialPorPaciente(@PathVariable UUID pacienteId) {
+        List<RecetaResponse> historial = recetaOpticaService.historialPorPaciente(pacienteId);
         return ResponseEntity.ok(historial);
     }
 
@@ -50,7 +53,7 @@ public class RecetaOpticaController {
                     + "Genera y descarga el PDF de una receta optica.")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<byte[]> descargarPdf(@PathVariable UUID id) {
-        RecetaOptica receta = recetaOpticaRepository.findById(id)
+        RecetaOptica receta = recetaOpticaRepository.findByIdConRelaciones(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receta no encontrada: " + id));
 
         byte[] pdfBytes = pdfService.generarPdf(receta);
@@ -67,10 +70,10 @@ public class RecetaOpticaController {
     @Operation(
             summary = "Crear receta optica",
             description = "REQUIERE token JWT. Roles: SUPER_ADMIN, JEFE o PROFESIONAL. "
-                    + "Registra una nueva receta optica.")
+                    + "Registra una nueva receta optica asociada a una consulta.")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<RecetaOptica> crearReceta(@RequestBody RecetaOptica receta) {
-        RecetaOptica nuevaReceta = recetaOpticaService.guardarReceta(receta);
+    public ResponseEntity<RecetaResponse> crearReceta(@Valid @RequestBody RecetaRequest request) {
+        RecetaResponse nuevaReceta = recetaOpticaService.crearReceta(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReceta);
     }
 
